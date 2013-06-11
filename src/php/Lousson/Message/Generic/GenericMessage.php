@@ -62,8 +62,8 @@ class GenericMessage implements AnyMessage
      *  The constructor requires the message content and, optional, the
      *  message's media type to be provided.
      *
-     *  @param  mixed               $content        The message data
-     *  @param  string              $type           The message media type
+     *  @param  mixed               $content    The message data
+     *  @param  string              $type       The message media type
      */
     public function __construct($content, $type = null)
     {

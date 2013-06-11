@@ -62,10 +62,13 @@ class GenericMessageTest extends AbstractMessageTest
      *  an internet media type string or NULL, in case the default behavior
      *  is to be tested.
      *
+     *  @param  string              $data       The message data
+     *  @param  string              $type       The message media type
+     *
      *  @return \Lousson\Message\Generic\GenericMessage
      *          A message instance is returned on success
      */
-    public function getMessage($data, $type)
+    public function getMessage($data, $type = null)
     {
         $message = new GenericMessage($data, $type);
         return $message;

@@ -62,10 +62,13 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
      *  an internet media type string or NULL, in case the default behavior
      *  is to be tested.
      *
+     *  @param  string              $data       The message data
+     *  @param  string              $type       The message media type
+     *
      *  @return \Lousson\Message\AnyMessage
      *          A message instance is returned on success
      */
-    abstract public function getMessage($data, $type);
+    abstract public function getMessage($data, $type = null);
 
     /**
      *  Provide message data parameters
@@ -157,19 +160,10 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
      *
      *  @dataProvider               provideGetContentParameters
      *  @test
-     *
-     *  @throws \PHPUnit_Framework_AssertionFailedError
-     *          Raised in case an assertion has failed
-     *
-     *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case a parameter is considered invalid
-     *
-     *  @throws \Exception
-     *          Raised in case of an internal error
      */
     public function testGetContent($data, $type = null, $expected = null)
     {
-        $message = $this->getRealMessage($data, $type);
+        $message = $this->getMessage($data, $type);
         $class = get_class($message);
         $content = $message->getContent();
         $method = "$class::getContent()";
@@ -211,19 +205,10 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
      *
      *  @dataProvider               provideGetTypeParameters
      *  @test
-     *
-     *  @throws \PHPUnit_Framework_AssertionFailedError
-     *          Raised in case an assertion has failed
-     *
-     *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case a parameter is considered invalid
-     *
-     *  @throws \Exception
-     *          Raised in case of an internal error
      */
     public function testGetType($data, $type = null, $expected = null)
     {
-        $message = $this->getRealMessage($data, $type);
+        $message = $this->getMessage($data, $type);
         $class = get_class($message);
         $type = $message->getType();
         $method = "$class::getType()";
@@ -246,32 +231,6 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
 
         $constaint = "$method and ::getContent() must be consistent";
         $this->assertThat($message->getContent(), $isOk, $constraint);
-    }
-
-    /**
-     *  Obtain a message instance
-     *
-     *  The getRealMessage() method is used internally instread of the
-     *  getMessage() method. It is a proxy that verifies that the message
-     *  object implements the AnyMessage interface - before returning the
-     *  exact same object.
-     *
-     *  @return \Lousson\Message\AnyMessage
-     *          A message instance is returned on success
-     *
-     *  @throws \PHPUnit_Framework_AssertionFailedError
-     *          Raised in case an assertion has failed
-     */
-    final protected function getRealMessage($data, $type)
-    {
-        $class = get_class($this);
-        $message = $this->getMessage($data, $type);
-        $this->assertInstanceOf(
-            "Lousson\\Message\\AnyMessage", $message,
-            "$class::getMessage() must return a message instance"
-        );
-
-        return $message;
     }
 }
 
