@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vim: set softtabstop=2 tabstop=2 shiftwidth=2 expandtab: -->
+<project name="local" default="help">
+  <target name="help">
+    <echo message="This component has no local build targets." />
+  </target>
+</project>
+

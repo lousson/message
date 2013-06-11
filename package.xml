@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vim: set softtabstop=2 tabstop=2 shiftwidth=2 expandtab: -->
+<package
+    packagerversion="1.9.1" version="2.0"
+    xmlns="http://pear.php.net/dtd/package-2.0"
+    xmlns:tasks="http://pear.php.net/dtd/tasks-1.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="
+        http://pear.php.net/dtd/tasks-1.0 http://pear.php.net/dtd/tasks-1.0.xsd
+        http://pear.php.net/dtd/package-2.0 http://pear.php.net/dtd/package-2.0.xsd
+    ">
+
+  <name>${project.name}</name>
+  <channel>${project.channel}</channel>
+  <summary>Lightweight inter-process communication</summary>
+  <description>
+    A working draft.
+  </description>
+
+  <lead>
+    <name>Mathias J. Hennig</name>
+    <user>mjhennig</user>
+    <email>mhennig at quirkies.org</email>
+    <active>yes</active>
+  </lead>
+  <developer>
+    <name>Attila Levai</name>
+    <user>sgnl19</user>
+    <email>alevai at quirkies.org</email>
+    <active>yes</active>
+  </developer>
+
+  <date>${build.date}</date>
+  <time>${build.time}</time>
+  <version>
+    <release>${project.version}</release>
+    <api>${project.majorVersion}.${project.minorVersion}</api>
+  </version>
+  <stability>
+    <release>${project.stability}</release>
+    <api>alpha</api>
+  </stability>
+  <license uri="http://www.opensource.org/licenses/bsd-license.php">New BSD License</license>
+  <notes>
+    A working draft in-progress.
+  </notes>
+
+  <contents>
+    <dir baseinstalldir="/" name="/">
+${contents}
+    </dir>
+  </contents>
+
+  <dependencies>
+    <required>
+      <php>
+        <min>5.3.0</min>
+      </php>
+      <pearinstaller>
+        <min>1.9.4</min>
+      </pearinstaller>
+      <package>
+        <name>Autoloader</name>
+        <channel>pear.phix-project.org</channel>
+        <min>3.0.0</min>
+        <max>3.999.9999</max>
+      </package>
+      <package>
+        <name>Lousson_Sniffs</name>
+        <channel>pear.lousson.org</channel>
+        <min>0.4.0</min>
+      </package>
+      <package>
+        <name>Lousson_Exception</name>
+        <channel>pear.lousson.org</channel>
+        <min>0.2.2</min>
+      </package>
+      <package>
+        <name>Lousson_Record</name>
+        <channel>pear.lousson.org</channel>
+        <min>0.4.0</min>
+      </package>
+      <package>
+        <name>Lousson_URI</name>
+        <channel>pear.lousson.org</channel>
+        <min>0.4.2</min>
+      </package>
+    </required>
+  </dependencies>
+
+  <phprelease/>
+
+</package>
