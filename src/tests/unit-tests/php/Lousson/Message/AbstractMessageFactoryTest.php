@@ -65,20 +65,19 @@ abstract class AbstractMessageFactoryTest extends AbstractMessageTest
     abstract public function getMessageFactory();
 
     /**
-     *  Obtain a message instance
+     *  Test the getMessage() method
      *
-     *  The getMessage() method is used to obtain a message instance that
-     *  holds the given $data and is used to the tests. The $type is either
-     *  an internet media type string or NULL, in case the default behavior
-     *  is to be tested.
+     *  The testGetMessage() method is a test case for getMessage() that
+     *  verifies the retuned object being an instance of the AnyMessage
+     *  interface.
      *
      *  @param  string              $data       The message data
      *  @param  string              $type       The message media type
      *
-     *  @return \Lousson\Message\AnyMessage
-     *          A message instance is returned on success
+     *  @dataProvider               provideMessageParameters
+     *  @test
      */
-    public function getMessage($data, $type = null)
+    public function testGetMessage($data, $type = null)
     {
         $factory = $this->getMessageFactory();
         $this->assertInstanceOf(
@@ -100,8 +99,6 @@ abstract class AbstractMessageFactoryTest extends AbstractMessageTest
             "The $factoryClass::getMessage() method must return an ".
             "instance of the AnyMessage interface"
         );
-
-        return $message;
     }
 }
 

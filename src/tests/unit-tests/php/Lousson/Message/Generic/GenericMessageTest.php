@@ -55,23 +55,136 @@ use Lousson\Message\Generic\GenericMessage;
 class GenericMessageTest extends AbstractMessageTest
 {
     /**
-     *  Obtain a message instance
+     *  Provide message data parameters
      *
-     *  The getMessage() method is used to obtain a message instance that
-     *  holds the given $data and is used to the tests. The $type is either
-     *  an internet media type string or NULL, in case the default behavior
-     *  is to be tested.
+     *  The provideGetContentParameters() method returns an array of one
+     *  or more items, each of whose is an array of one, two or three:
      *
-     *  @param  string              $data       The message data
-     *  @param  string              $type       The message media type
+     *- Message data, usually a byte sequence, for getMessage()
+     *- A media type string, for getMessage()
+     *- The expected return value of getContent()
      *
-     *  @return \Lousson\Message\Generic\GenericMessage
-     *          A message instance is returned on success
+     *  @return array
+     *          A list of message data parameters is returned on success
      */
-    public function getMessage($data, $type = null)
+    public function provideGetContentParameters()
+    {
+        $data = $this->provideMessageParameters();
+
+        $data[] = array(null, null, null);
+        $data[] = array("f\0\0bar", null, "f\0\0bar");
+
+        return $data;
+    }
+
+    /**
+     *  Provide message type parameters
+     *
+     *  The provideGetTypeParameters() method returns an array of one
+     *  or more items, each of whose is an array of one, two or three:
+     *
+     *- Message data, usually a byte sequence, for getMessage()
+     *- A media type string, for getMessage()
+     *- The expected return value of getType()
+     *
+     *  @return array
+     *          A list of message type parameters is returned on success
+     */
+    public function provideGetTypeParameters()
+    {
+        $data = $this->provideMessageParameters();
+        $type = "application/octet-stream";
+
+        $data[] = array(null, null, null);
+        $data[] = array("f\0\0bar", $type, $type);
+
+        return $data;
+    }
+
+    /**
+     *  Test the getContent() method
+     *
+     *  The testGetContent() method is a smoke-test for the message class'
+     *  getContent() method. It operates on a set of (valid) message $data
+     *  and, optionally, predefined media $type strings.
+     *
+     *  The $expected parameter can be used to specify what value shall
+     *  be returned by getContent(). If provided, the test will include
+     *  an assertion for equality by default.
+     *
+     *  @param  mixed               $data       The message data
+     *  @param  string              $type       The message data type
+     *  @param  mixed               $expected   The message data expected
+     *
+     *  @dataProvider               provideGetContentParameters
+     *  @test
+     */
+    public function testGetContent($data, $type = null, $expected = null)
     {
         $message = new GenericMessage($data, $type);
-        return $message;
+        $content = $message->getContent();
+
+        $isString = $this->isType("string");
+        $isStringOrNull = $this->logicalOr($isString, $this->isNull());
+        $constraint = "::getContent() method must return a string value";
+        $this->assertThat($content, $isStringOrNull, $constraint);
+
+        if (3 <= func_num_args()) {
+            $constraint = "::getContent() must return the expected value";
+            $this->assertEquals($expected, $content, $constraint);
+        }
+
+        $isOk = $this->isNull();
+
+        if (null !== $content) {
+            $isOk = $this->logicalNot($isOk);
+        }
+
+        $constraint = "::getContent() and ::getType() must be consistent";
+        $this->assertThat($message->getType(), $isOk, $constraint);
+    }
+
+    /**
+     *  Test the getType() method
+     *
+     *  The testGetType() method is a smoke-test for the message class'
+     *  getType() method. It operates on a set of (valid) message $data
+     *  and, optionally, predefined media $type strings.
+     *
+     *  The $expected parameter can be used to specify what value shall
+     *  be returned by getType(). If provided, the test will include
+     *  an assertion for equality by default.
+     *
+     *  @param  mixed               $data       The message data
+     *  @param  string              $type       The message data type
+     *  @param  string              $expected   The message type expected
+     *
+     *  @dataProvider               provideGetTypeParameters
+     *  @test
+     */
+    public function testGetType($data, $type = null, $expected = null)
+    {
+        $message = new GenericMessage($data, $type);
+        $type = $message->getType();
+
+        $isString = $this->isType("string");
+        $isStringOrNull = $this->logicalOr($isString, $this->isNull());
+        $constraint = "::getType() must return a string value or NULL";
+        $this->assertThat($type, $isStringOrNull, $constraint);
+
+        if (3 <= func_num_args()) {
+            $constraint = "::getType() must return the expected value";
+            $this->assertEquals($expected, $type, $constraint);
+        }
+
+        $isOk = $this->isNull();
+
+        if (null !== $type) {
+            $isOk = $this->logicalNot($isOk);
+        }
+
+        $constraint = "::getType() and ::getContent() must be consistent";
+        $this->assertThat($message->getContent(), $isOk, $constraint);
     }
 }
 
