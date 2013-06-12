@@ -22,7 +22,10 @@
               <file>src/php/Lousson/Message/AnyMessageHandler.php</file>
               <file>src/php/Lousson/Message/AnyMessageProvider.php</file>
               <file>src/php/Lousson/Message/AnyMessageResolver.php</file>
-           </exclude> 
+              <file>src/php/Lousson/Message/Record/RecordMessageBroker.php</file>
+              <file>src/php/Lousson/Message/Record/RecordMessageHandler.php</file>
+              <file>src/php/Lousson/Message/Record/RecordMessageProvider.php</file>
+           </exclude>
         </whitelist>
     </filter>
     <logging>
