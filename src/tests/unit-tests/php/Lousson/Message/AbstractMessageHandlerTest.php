@@ -43,11 +43,13 @@
 namespace Lousson\Message;
 
 /** Dependencies: */
-use Lousson\Message\Generic\GenericMessage;
 use PHPUnit_Framework_TestCase;
 
 /**
- *  An abstract test case for message factories
+ *  An abstract test case for message handlers
+ *
+ *  The AbstractMessageHandlerTest class serves as the base for testing
+ *  implementations of the AnyMessageHandler interface.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.record
@@ -90,7 +92,19 @@ abstract class AbstractMessageHandlerTest extends AbstractMessageTest
     }
 
     /**
+     *  Provide process() parameters
      *
+     *  The provideProcessParameters() method is a data provider for tests
+     *  of e.g. the AnyMessageHandler::process() method.
+     *  It returns an array of multiple items, each of whose is a set of
+     *  valid parameters for this method, consisting of two or three items:
+     *
+     *- A URI string or AnyURI instance
+     *- A byte sequence or string as the message content
+     *- An optional internet media type string
+     *
+     *  @return array
+     *          An array of parameter sets is returned on success
      */
     public function provideProcessParameters()
     {
@@ -105,18 +119,44 @@ abstract class AbstractMessageHandlerTest extends AbstractMessageTest
     }
 
     /**
+     *  Provide invalid process() parameters
      *
+     *  The provideInvalidProcessParameters() method is a data provider
+     *  for tests of e.g. the AnyMessageHandler::process() method.
+     *  It returns an array of multiple items, each of whose is a set of
+     *  invalid parameters for this method, consisting of either two or
+     *  three items:
+     *
+     *- An AnyURI instance or possibly malformed URI string
+     *- A byte sequence or string as the message content
+     *- An optional and possibly malformed media type string
+     *
+     *  @return array
+     *          An array of invalid parameter sets is returned on successg
      */
-    public function provideProcessInvalidParameters()
+    public function provideInvalidProcessParameters()
     {
         $parms[] = array(":foo", ":bar");
+        $parms[] = array(":foo", ":bar", "text/plain");
         $parms[] = array("f\0\0", "b@rb@z");
+        $parms[] = array("f\0\0", "b@rb@z", "application/octet-stream");
 
         return $parms;
     }
 
     /**
+     *  Provide processMessage() parameters
      *
+     *  The provideProcessMessageParameters() method is a data provider
+     *  for tests of e.g. the AnyMessageHandler::processMessage() method.
+     *  It returns an array of multiple items, each of whose is a set of
+     *  valid parameters for this method, consisting of two items:
+     *
+     *- An URI string or AnyURI instance
+     *- An instance of the AnyMessage interface
+     *
+     *  @return array
+     *          An array of parameter sets is returned on success
      */
     public function provideProcessMessageParameters()
     {
@@ -124,7 +164,7 @@ abstract class AbstractMessageHandlerTest extends AbstractMessageTest
         $parms = array();
 
         foreach ($data as $item) {
-            $message = new GenericMessage($item[1], @$item[2]);
+            $message = $this->getMessageMock($item[1], @$item[2]);
             $parms[] = array($item[0], $message);
         }
 
@@ -132,12 +172,28 @@ abstract class AbstractMessageHandlerTest extends AbstractMessageTest
     }
 
     /**
+     *  Test the process() method
+     *
+     *  The testProcess() method is a test case for the process() method
+     *  of the AnyMessageHandler interface.
+     *
+     *  The AbstractMessageHandlerTest's default implementation, however,
+     *  does not test the effect of the invocation, but only verifies that
+     *  it is successful when provided with valid parameters and does not
+     *  return any value.
+     *
      *  @param  string              $uri        The message/event URI
      *  @param  mixed               $data       The message data
      *  @param  string              $type       The message data type
      *
      *  @dataProvider               provideProcessParameters
      *  @test
+     *
+     *  @throws \PHPUnit_Framework_AssertionFailedError
+     *          Raised in case one of the test's assertions has failed
+     *
+     *  @throws \Exception
+     *          Raised in case of an internal error
      */
     public function testProcess($uri, $data, $type = null)
     {
@@ -158,13 +214,25 @@ abstract class AbstractMessageHandlerTest extends AbstractMessageTest
     }
 
     /**
+     *  Test the process() method
+     *
+     *  The testProcessInvalid() is a test case for the process() method
+     *  of the AnyMessageHandler interface that uses invalid input data to
+     *  verify the implementation's parameter handling.
+     *
      *  @param  string              $uri        The message/event URI
      *  @param  mixed               $data       The message data
      *  @param  string              $type       The message data type
      *
-     *  @dataProvider               provideProcessInvalidParameters
+     *  @dataProvider               provideInvalidProcessParameters
      *  @expectedException          Lousson\Message\AnyMessageException
      *  @test
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          Raised in case the test is successful
+     *
+     *  @throws \Exception
+     *          Raised in case of an internal error
      */
     public function testProcessInvalid($uri, $data, $type = null)
     {
@@ -177,20 +245,31 @@ abstract class AbstractMessageHandlerTest extends AbstractMessageTest
         else {
             $result = $handler->process($uri, $data);
         }
-
-        $this->assertNull(
-            $result,
-            "The $handlerClass::process() method must return NULL"
-        );
     }
 
     /**
+     *  Test the processMessage() method
+     *
+     *  The testProcessMessage() method is a test case for a handler's
+     *  processMessage() method, as declared by the AnyMessageHandler
+     *  interface.
+     *
+     *  The AbstractMessageHandlerTest's default implementation, however,
+     *  does not test the effect of the invocation, but only verifies that
+     *  it is successful when provided with valid parameters and does not
+     *  return any value.
+     *
      *  @param  string              $uri        The message/event URI
-     *  @param  mixed               $data       The message data
-     *  @param  string              $type       The message data type
+     *  @param  AnyMessage          $message    The message instance
      *
      *  @dataProvider               provideProcessMessageParameters
      *  @test
+     *
+     *  @throws \PHPUnit_Framework_AssertionFailedError
+     *          Raised in case one of the test's assertions has failed
+     *
+     *  @throws \Exception
+     *          Raised in case of an internal error
      */
     public function testProcessMessage($uri, AnyMessage $message)
     {

@@ -48,6 +48,10 @@ use PHPUnit_Framework_TestCase;
 /**
  *  An abstract test case for message classes
  *
+ *  The AbstractMessageTest class is as a base for test implementations
+ *  for the interfaces in the Lousson\Message namespace. It provides a set
+ *  of utilities that should ease the tasks of test authors.
+ *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.record
  *  @link       http://www.phpunit.de/manual/current/en/
@@ -78,6 +82,39 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
         $data[] = array(null, null);
 
         return $data;
+    }
+
+    /**
+     *  Create an AnyMessage mock
+     *
+     *  The getMessageMock() method returns a mock of the AnyMessage
+     *  interface, one whose getContent() and getType() methods return
+     *  the $content and $type provided.
+     *
+     *  @param  string              $content    The message content
+     *  @param  string              $type       The message type
+     *
+     *  @return \Lousson\Message\AnyMessage
+     *          A message mock instance is returned on success
+     */
+    protected function getMessageMock($content = null, $type = null)
+    {
+        $message = $this->getMock(
+            "Lousson\\Message\\AnyMessage",
+            array("getContent", "getType")
+        );
+
+        $message
+            ->expects($this->any())
+            ->method("getContent")
+            ->will($this->returnValue($content));
+
+        $message
+            ->expects($this->any())
+            ->method("getType")
+            ->will($this->returnValue($type));
+
+        return $message;
     }
 }
 
