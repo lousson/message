@@ -16,9 +16,9 @@ compatible autoload implementation:
 
 - **PHP 5.3.0+**:                           http://www.php.net/
 - **PSR-0 Autoloader**:                     http://pear.phix-project.org/
-- **Lousson_Error**:                        http://pear.lousson.org/
-- **Lousson_Record**:                       http://pear.lousson.org/
-- **Lousson_URI**:                          http://pear.lousson.org/
+- **Lousson_Exception 0.2.2+**:             http://pear.lousson.org/
+- **Lousson_Record 0.4.0+**:                http://pear.lousson.org/
+- **Lousson_URI 0.4.2+**:                   http://pear.lousson.org/
 
 However, there is also a bunch of tools the development and build
 processes rely on, e.g.:
@@ -26,7 +26,7 @@ processes rely on, e.g.:
 - **Git 1.7+**:                             http://www.git-scm.com/
 - **Phing 2.4+**:                           http://www.phing.info/
 - **Phix 0.15.0+**:                         http://www.phix-project.org/
-- **PHPUnit 3.6+**:                         http://www.phpunit.de/
+- **PHPUnit 3.7+**:                         http://www.phpunit.de/
 - **Pirum 1.1.4+**:                         http://pirum.sensiolabs.org/
 
 Please note that The Lousson Project does NOT provide support for any of
