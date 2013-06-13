@@ -59,6 +59,41 @@ use PHPUnit_Framework_TestCase;
 abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
 {
     /**
+     *  The fully qualified name of the message interface
+     *
+     *  @var string
+     */
+    const I_MESSAGE = "Lousson\\Message\\AnyMessage";
+
+    /**
+     *  The fully qualified name of the message resolver interface
+     *
+     *  @var string
+     */
+    const I_RESOLVER = "Lousson\\Message\\AnyMessageResolver";
+
+    /**
+     *  The fully qualified name of the message handler interface
+     *
+     *  @var string
+     */
+    const I_HANDLER = "Lousson\\Message\\AnyMessageHandler";
+
+    /**
+     *  The fully qualified name of the message provider interface
+     *
+     *  @var string
+     */
+    const I_PROVIDER = "Lousson\\Message\\AnyMessageProvider";
+
+    /**
+     *  The fully qualified name of the message broker interface
+     *
+     *  @var string
+     */
+    const I_BROKER = "Lousson\\Message\\AnyMessageBroker";
+
+    /**
      *  Provide message parameters
      *
      *  The provideMessageParameters() method returns an array of one
@@ -66,6 +101,10 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
      *
      *- Message data, usually a byte sequence, for getMessage()
      *- A media type string, for getMessage()
+     *
+     *  Authors of derived classes should reimplement this method if
+     *  their test subject operates with a particular message dialect
+     *  rather than arbitrary binary data.
      *
      *  @return array
      *          A list of message parameters is returned on success
@@ -99,10 +138,8 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
      */
     protected function getMessageMock($content = null, $type = null)
     {
-        $message = $this->getMock(
-            "Lousson\\Message\\AnyMessage",
-            array("getContent", "getType")
-        );
+        $methods = array("getContent", "getType");
+        $message = $this->getMock(self::I_MESSAGE, $methods);
 
         $message
             ->expects($this->any())
