@@ -44,8 +44,7 @@ namespace Lousson\Message;
 
 /** Dependencies: */
 use Lousson\Message\AnyMessageResolver;
-use Lousson\URI\Generic\GenericURI;
-use PHPUnit_Framework_TestCase;
+use Lousson\Message\AbstractMessageTest;
 
 /**
  *  An abstract test case for message resolvers
@@ -54,8 +53,7 @@ use PHPUnit_Framework_TestCase;
  *  @package    org.lousson.record
  *  @link       http://www.phpunit.de/manual/current/en/
  */
-abstract class AbstractMessageResolverTest
-    extends PHPUnit_Framework_TestCase
+abstract class AbstractMessageResolverTest extends AbstractMessageTest
 {
     /**
      *  Obtain a message resolver instance
@@ -77,29 +75,6 @@ abstract class AbstractMessageResolverTest
         $invalid = $this->provideInvalidURIs();
         $uris = array_merge($valid, $invalid);
         sort($uris);
-        return $uris;
-    }
-
-    /**
-     *
-     */
-    public function provideValidURIs()
-    {
-        $uris[][] = "http://example.com/";
-        $uris[][] = "urn:lousson:test";
-        $uris[][] = GenericURI::create("urn:lousson:test");
-
-        return $uris;
-    }
-
-    /**
-     *
-     */
-    public function provideInvalidURIs()
-    {
-        $uris[][] = ":alpha";
-        $uris[][] = "?key=value";
-
         return $uris;
     }
 
