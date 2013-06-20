@@ -88,7 +88,7 @@ class AMQPURIParser
      */
     private function parseHostAndPort(AnyURI $uri, AMQPURI &$amqpURI)
     {
-        $host = rtrim($uri->getPart(AnyURI::PART_HOST), '/');
+        $host = $uri->getPart(AnyURI::PART_HOST);
         if (!is_string($host) || !strlen($host)) {
             $message = "The given URI $uri contains no host information.";
             throw new InvalidURIError($message);
@@ -135,7 +135,7 @@ class AMQPURIParser
      */
     private function parsePath(AnyURI $uri, AMQPURI &$amqpURI)
     {
-        $path = $uri->getPart(AnyURI::PART_PATH);
+        $path = rtrim($uri->getPart(AnyURI::PART_PATH), '/');
         if (is_string($path) && strlen($path)) {
             $amqpURI->setVhost($path);
         }
