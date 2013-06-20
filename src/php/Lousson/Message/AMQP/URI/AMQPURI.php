@@ -74,6 +74,7 @@ class AMQPURI
     }
 
     /**
+     *  Set the exchange's name.
      *  @param string $exchange
      */
     public function setExchange($exchange)
@@ -82,6 +83,7 @@ class AMQPURI
     }
 
     /**
+     *  Get the exchange's name.
      *  @return null|string
      */
     public function getExchange()
@@ -90,6 +92,7 @@ class AMQPURI
     }
 
     /**
+     *  Set the host name.
      *  @param string $host
      */
     public function setHost($host)
@@ -98,6 +101,7 @@ class AMQPURI
     }
 
     /**
+     *  Get the host name.
      *  @return string
      */
     public function getHost()
@@ -106,6 +110,7 @@ class AMQPURI
     }
 
     /**
+     *  Set the login name.
      *  @param string $login
      */
     public function setLogin($login)
@@ -114,6 +119,7 @@ class AMQPURI
     }
 
     /**
+     *  Get the login name.
      *  @return null|string
      */
     public function getLogin()
@@ -122,6 +128,7 @@ class AMQPURI
     }
 
     /**
+     *  Set the password.
      *  @param string $password
      */
     public function setPassword($password)
@@ -130,6 +137,7 @@ class AMQPURI
     }
 
     /**
+     *  Get the password.
      *  @return null|string
      */
     public function getPassword()
@@ -138,6 +146,7 @@ class AMQPURI
     }
 
     /**
+     *  Set the port number.
      *  @param int $port
      */
     public function setPort($port)
@@ -146,6 +155,7 @@ class AMQPURI
     }
 
     /**
+     *  Get the port number.
      *  @return int|null
      */
     public function getPort()
@@ -154,6 +164,7 @@ class AMQPURI
     }
 
     /**
+     *  Set the queue name.
      *  @param string $queue
      */
     public function setQueue($queue)
@@ -162,6 +173,7 @@ class AMQPURI
     }
 
     /**
+     *  Get the queue name.
      *  @return null|string
      */
     public function getQueue()
@@ -170,6 +182,7 @@ class AMQPURI
     }
 
     /**
+     *  Set the routing key.
      *  @param string $routingKey
      */
     public function setRoutingKey($routingKey)
@@ -178,6 +191,7 @@ class AMQPURI
     }
 
     /**
+     *  Get the routing key.
      *  @return null|string
      */
     public function getRoutingKey()
@@ -186,6 +200,7 @@ class AMQPURI
     }
 
     /**
+     *  Set the vhost name.
      *  @param string $vhost
      */
     public function setVhost($vhost)
@@ -194,6 +209,7 @@ class AMQPURI
     }
 
     /**
+     *  Get the vhost name.
      *  @return null|string
      */
     public function getVhost()
@@ -202,41 +218,49 @@ class AMQPURI
     }
 
     /**
+     *  The exchange's name
      *  @var string|null
      */
     private $exchange;
 
     /**
+     *  The host name
      *  @var string
      */
     private $host;
 
     /**
+     *  The login name
      *  @var string|null
      */
     private $login;
 
     /**
+     *  The password
      *  @var string|null
      */
     private $password;
 
     /**
+     *  The port number
      *  @var int|null
      */
     private $port;
 
     /**
+     *  The queue name
      *  @var string|null
      */
     private $queue;
 
     /**
+     *  The routing key
      *  @var string|null
      */
     private $routingKey;
 
     /**
+     *  The vhost name
      *  @var string|null
      */
     private $vhost;

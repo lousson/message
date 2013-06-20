@@ -42,6 +42,9 @@
  */
 namespace Lousson\Message\AMQP\Error;
 
+/** Interfaces: */
+use Lousson\Message\Error\AnyMessageException;
+
 /** Exceptions: */
 use Lousson\Error\RuntimeError;
 
@@ -51,7 +54,7 @@ use Lousson\Error\RuntimeError;
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class AMQPRuntimeError extends RuntimeError
+class AMQPRuntimeError extends RuntimeError implements AnyMessageException
 {
 
 }

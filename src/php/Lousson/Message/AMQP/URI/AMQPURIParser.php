@@ -69,7 +69,7 @@ class AMQPURIParser
 
         $amqpURI = new AMQPURI();
 
-        $this->parseHost($uri, $amqpURI);
+        $this->parseHostAndPort($uri, $amqpURI);
         $this->parseCredentials($uri, $amqpURI);
         $this->parsePath($uri, $amqpURI);
         $this->parseQuery($uri, $amqpURI);
@@ -86,9 +86,9 @@ class AMQPURIParser
      *  @throws \Lousson\URI\AnyURIException
      *          Raised in case the host could not be parsed.
      */
-    private function parseHost(AnyURI $uri, AMQPURI &$amqpURI)
+    private function parseHostAndPort(AnyURI $uri, AMQPURI &$amqpURI)
     {
-        $host = $uri->getPart(AnyURI::PART_HOST);
+        $host = rtrim($uri->getPart(AnyURI::PART_HOST), '/');
         if (!is_string($host) || !strlen($host)) {
             $message = "The given URI $uri contains no host information.";
             throw new InvalidURIError($message);

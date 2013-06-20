@@ -74,7 +74,7 @@ class AMQPObjectsFactory
             return new \AMQPChannel($this->connection);
         }
         catch (\AMQPConnectionException $error) {
-            $message = 'Impl AMQP error';
+            $message = 'Internal AMQP error';
             $code = AMQPRuntimeError::E_INTERNAL_ERROR;
             throw new AMQPRuntimeError($message, $code, $error);
         }
@@ -100,17 +100,17 @@ class AMQPObjectsFactory
             $exchange->declareExchange();
         }
         catch (\AMQPChannelException $error) {
-            $message = 'Impl AMQP error';
+            $message = 'Internal AMQP error';
             $code = AMQPRuntimeError::E_INTERNAL_ERROR;
             throw new AMQPRuntimeError($message, $code, $error);
         }
         catch (\AMQPConnectionException $error) {
-            $message = 'Impl AMQP error';
+            $message = 'Internal AMQP error';
             $code = AMQPRuntimeError::E_INTERNAL_ERROR;
             throw new AMQPRuntimeError($message, $code, $error);
         }
         catch (\AMQPExchangeException $error) {
-            $message = 'Impl AMQP error';
+            $message = 'Internal AMQP error';
             $code = AMQPRuntimeError::E_INTERNAL_ERROR;
             throw new AMQPRuntimeError($message, $code, $error);
         }
