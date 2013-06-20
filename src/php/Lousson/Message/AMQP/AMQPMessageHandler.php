@@ -68,9 +68,9 @@ class AMQPMessageHandler extends GenericMessageHandler
     /**
      *  Create a new instance of the AMQP message handler.
      *
-     *  @param  AnyURI           $uri
-     *  @param  AMQPURIParser    $amqpURIParser
-     *  @param  AMQPObjectsFactory      $amqpObjectsFactory
+     *  @param  AnyURI              $uri
+     *  @param  AMQPURIParser       $amqpURIParser
+     *  @param  AMQPObjectsFactory  $amqpObjectsFactory
      */
     public function __construct(
         AnyURI $uri,
@@ -122,7 +122,7 @@ class AMQPMessageHandler extends GenericMessageHandler
 
         try {
             $exchange = $this->amqpObjectsFactory->createExchange($exchangeName);
-            if (!$exchange->publish($message, $routingKey)) {
+            if (!$exchange->publish($message->getContent(), $routingKey)) {
                 $message = 'Publishing the message failed';
                 throw new RuntimeMessageError($message);
             }
