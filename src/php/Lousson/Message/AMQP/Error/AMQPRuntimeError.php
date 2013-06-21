@@ -43,7 +43,7 @@
 namespace Lousson\Message\AMQP\Error;
 
 /** Interfaces: */
-use Lousson\Message\Error\AnyMessageException;
+use Lousson\Message\AnyMessageException;
 
 /** Exceptions: */
 use Lousson\Error\RuntimeError;

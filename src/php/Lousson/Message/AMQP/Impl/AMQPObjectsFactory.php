@@ -71,6 +71,7 @@ class AMQPObjectsFactory
     public function createChannel()
     {
         try {
+
             return new \AMQPChannel($this->connection);
         }
         catch (\AMQPConnectionException $error) {
@@ -97,7 +98,8 @@ class AMQPObjectsFactory
         try {
             $exchange = new \AMQPExchange($channel);
             $exchange->setName($name);
-            $exchange->declareExchange();
+            // declare not allowed
+            //$exchange->declareExchange();
         }
         catch (\AMQPChannelException $error) {
             $message = 'Internal AMQP error';
