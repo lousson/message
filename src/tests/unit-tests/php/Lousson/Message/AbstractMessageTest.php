@@ -34,7 +34,7 @@
 /**
  *  Lousson\Message\AbstractMessageTest class definition
  *
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
@@ -54,7 +54,7 @@ use PHPUnit_Framework_TestCase;
  *  of utilities that should ease the tasks of test authors.
  *
  *  @since      lousson/Lousson_Message-0.1.0
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @link       http://www.phpunit.de/manual/current/en/
  */
 abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
@@ -95,9 +95,16 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
     const I_BROKER = "Lousson\\Message\\AnyMessageBroker";
 
     /**
+     *  The fully qualified name of the message exception interface
+     *
+     *  @var string
+     */
+    const I_EXCEPTION = "Lousson\\Message\\AnyMessageException";
+
+    /**
      *  Provide message parameters
      *
-     *  The provideMessageParameters() method returns an array of one
+     *  The provideValidMessageData() method returns an array of one
      *  or more items, each of whose is an array of either one or two:
      *
      *- Message data, usually a byte sequence
@@ -110,7 +117,7 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
      *  @return array
      *          A list of message parameters is returned on success
      */
-    public function provideMessageParameters()
+    public function provideValidMessageData()
     {
         $data[][] = "foobar";
         $data[][] = "f\0\0bar";
@@ -122,6 +129,29 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
         $data[] = array(null, null);
 
         return $data;
+    }
+
+    /**
+     *  Provide message instances
+     *
+     *  The provideValidMessageInstances() method returns an array of
+     *  multiple items, each of whose is an array with one item:
+     *  An instance of the AnyMessage interface.
+     *
+     *  @return array
+     *          A list of message instances is returned on success
+     */
+    public function provideValidMessageInstances()
+    {
+        $data = $this->provideValidMessageData();
+        $instances = array();
+
+        foreach ($data as $item) {
+            $message = $this->getMessageMock($item[0], @$item[1]);
+            $instances[][] = $message;
+        }
+
+        return $instances;
     }
 
     /**

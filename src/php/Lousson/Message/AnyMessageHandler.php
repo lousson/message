@@ -42,7 +42,7 @@
  */
 namespace Lousson\Message;
 
-/** Dependencies: */
+/** Interfaces: */
 use Lousson\Message\AnyMessage;
 
 /**
@@ -75,7 +75,13 @@ interface AnyMessageHandler
      *  @param  string              $type       The media type
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case processing the message has failed
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case an argument is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     public function process($uri, $data, $type = null);
 
@@ -89,7 +95,13 @@ interface AnyMessageHandler
      *  @param  AnyMessage          $message    The message instance
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case processing the message has failed
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case an argument is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     public function processMessage($uri, AnyMessage $message);
 }

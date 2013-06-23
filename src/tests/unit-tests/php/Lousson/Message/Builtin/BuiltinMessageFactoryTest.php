@@ -34,7 +34,7 @@
 /**
  *  Lousson\Message\Builtin\BuiltinMessageFactoryTest class definition
  *
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
@@ -50,7 +50,7 @@ use Lousson\Message\Builtin\BuiltinMessageFactory;
  *  A test case for the builtin message factory
  *
  *  @since      lousson/Lousson_Message-0.1.0
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  */
 final class BuiltinMessageFactoryTest extends AbstractMessageFactoryTest
 {

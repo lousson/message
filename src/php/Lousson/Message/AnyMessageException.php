@@ -42,7 +42,7 @@
  */
 namespace Lousson\Message;
 
-/** Dependencies: */
+/** Interfaces: */
 use Lousson\AnyException;
 
 /**

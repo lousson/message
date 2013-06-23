@@ -34,7 +34,7 @@
 /**
  *  Lousson\Message\Builtin\BuiltinMessageResolverTest class definition
  *
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>

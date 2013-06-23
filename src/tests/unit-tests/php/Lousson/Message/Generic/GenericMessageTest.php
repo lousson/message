@@ -34,7 +34,7 @@
 /**
  *  Lousson\Message\Generic\GenericMessageTest class definition
  *
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
@@ -50,7 +50,7 @@ use Lousson\Message\Generic\GenericMessage;
  *  A test case for the generic message class
  *
  *  @since      lousson/Lousson_Message-0.1.0
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  */
 class GenericMessageTest extends AbstractMessageTest
 {
@@ -69,7 +69,7 @@ class GenericMessageTest extends AbstractMessageTest
      */
     public function provideGetContentParameters()
     {
-        $data = $this->provideMessageParameters();
+        $data = $this->provideValidMessageData();
 
         $data[] = array(null, null, null);
         $data[] = array("f\0\0bar", null, "f\0\0bar");
@@ -92,7 +92,7 @@ class GenericMessageTest extends AbstractMessageTest
      */
     public function provideGetTypeParameters()
     {
-        $data = $this->provideMessageParameters();
+        $data = $this->provideValidMessageData();
         $type = "application/octet-stream";
 
         $data[] = array(null, null, null);
@@ -118,6 +118,12 @@ class GenericMessageTest extends AbstractMessageTest
      *
      *  @dataProvider               provideGetContentParameters
      *  @test
+     *
+     *  @throws \PHPUnit_Framework_AssertionFailedError
+     *          Raised in case an assertion has failed
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
      */
     public function testGetContent($data, $type = null, $expected = null)
     {
@@ -161,6 +167,12 @@ class GenericMessageTest extends AbstractMessageTest
      *
      *  @dataProvider               provideGetTypeParameters
      *  @test
+     *
+     *  @throws \PHPUnit_Framework_AssertionFailedError
+     *          Raised in case an assertion has failed
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
      */
     public function testGetType($data, $type = null, $expected = null)
     {

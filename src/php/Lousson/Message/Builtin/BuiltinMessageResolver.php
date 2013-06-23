@@ -73,8 +73,14 @@ class BuiltinMessageResolver extends GenericMessageResolver
      *          A message handler instance is returned on success,
      *          NULL otherwise
      *
-     *  @throws \Exception
-     *          Raised in case an internal error occured
+     *  @throws \Lousson\Message\AnyMessageException
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     public function lookupHandler(AnyURI $uri)
     {
@@ -95,8 +101,14 @@ class BuiltinMessageResolver extends GenericMessageResolver
      *          A message handler instance is returned on success,
      *          NULL otherwise
      *
-     *  @throws \Exception
-     *          Raised in case an internal error occured
+     *  @throws \Lousson\Message\AnyMessageException
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     public function lookupProvider(AnyURI $uri)
     {

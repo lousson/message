@@ -34,7 +34,7 @@
 /**
  *  Lousson\Message\Generic\GenericMessageResolverTest class definition
  *
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
@@ -95,7 +95,7 @@ final class GenericMessageResolverTest
      *  constructor is actually used when resolveHandler() is invoked.
      *
      *  @throws \Exception
-     *          Raised in case of an internal error
+     *          Raised in case of an implementation error
      */
     public function testResolveHandlerWithResolver()
     {
@@ -129,7 +129,7 @@ final class GenericMessageResolverTest
      *  constructor is actually used when resolveProvider() is invoked.
      *
      *  @throws \Exception
-     *          Raised in case of an internal error
+     *          Raised in case of an implementation error
      */
     public function testResolveProviderWithResolver()
     {
@@ -166,7 +166,7 @@ final class GenericMessageResolverTest
      *          Raised in case the return values are not the same
      *
      *  @throws \Exception
-     *          Raised in case of an internal error
+     *          Raised in case of an implementation error
      */
     public function testLookupHandler()
     {
@@ -197,7 +197,7 @@ final class GenericMessageResolverTest
      *          Raised in case the return values are not the same
      *
      *  @throws \Exception
-     *          Raised in case of an internal error
+     *          Raised in case of an implementation error
      */
     public function testLookupProvider()
     {
@@ -228,10 +228,10 @@ final class GenericMessageResolverTest
      *  @test
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case of success
+     *          Raised in case the test is successful
      *
      *  @throws \Exception
-     *          Raised in case of an internal error
+     *          Raised in case of an implementation error
      */
     public function testResolveHandlerWithValidError()
     {
@@ -260,10 +260,10 @@ final class GenericMessageResolverTest
      *  @test
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case of success
+     *          Raised in case the test is successful
      *
      *  @throws \Exception
-     *          Raised in case of an internal error
+     *          Raised in case of an implementation error
      */
     public function testResolveProviderWithValidError()
     {
@@ -293,10 +293,10 @@ final class GenericMessageResolverTest
      *  @test
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case of success
+     *          Raised in case the test is successful
      *
      *  @throws \Exception
-     *          Raised in case of an internal error
+     *          Raised in case of an implementation error
      */
     public function testResolveHandlerWithInvalidError()
     {
@@ -326,10 +326,10 @@ final class GenericMessageResolverTest
      *  @test
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case of success
+     *          Raised in case the test is successful
      *
      *  @throws \Exception
-     *          Raised in case of an internal error
+     *          Raised in case of an implementation error
      */
     public function testResolveProviderWithInvalidError()
     {

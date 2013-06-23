@@ -79,7 +79,13 @@ interface AnyMessageResolver
      *          NULL otherwise
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the given $uri is malformed
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     public function resolveHandler(&$uri);
 
@@ -99,7 +105,13 @@ interface AnyMessageResolver
      *          NULL otherwise
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the given $uri is malformed
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     public function resolveProvider(&$uri);
 }

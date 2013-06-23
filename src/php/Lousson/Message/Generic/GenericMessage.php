@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Generic\GenericMessage interface definition
+ *  Lousson\Message\Generic\GenericMessage class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project

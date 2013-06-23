@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Record\RecordMessageProvider interface definition
+ *  Lousson\Message\Callback\CallbackMessageProviderTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,46 +40,78 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Record;
+namespace Lousson\Message\Callback;
 
 /** Interfaces: */
 use Lousson\Message\AnyMessageProvider;
 
+/** Dependencies: */
+use Lousson\Message\AbstractMessageProviderTest;
+use Lousson\Message\Callback\CallbackMessageProvider;
+use Psr\Log\NullLogger;
+
 /**
- *  An interface for record message providers
- *
- *  The RecordMessageProvider interface extends the AnyMessageProvider
- *  API by the fetchRecord() method. Thus; it specializes in fetching data
- *  arrays rather than plain/binary messages.
+ *  A test case for the callback message provider
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-interface RecordMessageProvider extends AnyMessageProvider
+final class CallbackMessageProviderTest extends AbstractMessageProviderTest
 {
     /**
-     *  Retrieve message records
+     *  Obtain a message provider instance
      *
-     *  The fetchRecord() method is used to obtain the next message record
-     *  associated with the given event $uri. The $flags parameter can be
-     *  used to request special behavior:
+     *  The getMessageProvider() method returns the message provider
+     *  instance the test case shall operate with.
      *
-     *- AnyMessageProvider::FETCH_CONFIRM
-     *  Populate the $token reference for acknowledge() or discard()
+     *  @param  string              $uri        The test message URI
+     *  @param  array               $expected   The test messages
      *
-     *  @param  string              $uri        The event URI
-     *  @param  int                 $flags      The option bitmask
-     *  @param  mixed               $token      The delivery token
-     *
-     *  @return array
-     *          A data record array is returned on success, or NULL in
-     *          case no more messages are available for the given $uri
-     *
-     *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case retrieving the next message has failed
+     *  @return \Lousson\Message\Callback\CallbackMessageProvider
+     *          A message provider instance is returned on success
      */
-    public function fetchRecord(
-        $uri, $flags = self::FETCH_DEFAULT, &$token = null
-    );
+    public function getMessageProvider($uri, array $expected)
+    {
+        $callback = function($uri) use(&$expected) {
+            $message = array_shift($expected);
+            return $message;
+        };
+
+        $provider = new CallbackMessageProvider($callback);
+        $provider->setLogger(new NullLogger());
+
+        return $provider;
+    }
+
+    /**
+     *  Test the destructor
+     *
+     *  The testDestructor() method verifies that the cleanup in the
+     *  CallbackMessageProvider's destructor works as expected.
+     *
+     *  @param  array               $data       The test messages
+     *  @param  string              $uri        The message/event URI
+     *  @param  int                 $flags      The fetch() flags
+     *
+     *  @dataProvider               provideValidFetchParameters
+     *  @test
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    public function testDestructor(
+        array $data,
+        $uri,
+        $flags = self::FETCH_DEFAULT
+    ) {
+        $flags |= self::FETCH_CONFIRM;
+        $provider = $this->getMessageProvider($uri, $data);
+        $index = 0;
+
+        while($provider->fetch($uri, $flags, $token));
+        $provider->discard($token, self::DISC_REQUEUE);
+        unset($provider);
+    }
 }
+
 

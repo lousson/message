@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Record\RecordMessageBroker interface definition
+ *  Lousson\Message\AbstractMessageProvider class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,25 +40,85 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Record;
+namespace Lousson\Message;
 
 /** Interfaces: */
-use Lousson\Message\AnyMessageBroker;
-use Lousson\Message\Record\RecordMessageHandler;
-use Lousson\Message\Record\RecordMessageProvider;
+use Lousson\Message\AnyMessageProvider;
+use Lousson\URI\AnyURIFactory;
+
+/** Dependencies: */
+use Lousson\URI\Builtin\BuiltinURIFactory;
+
+/** Exceptions: */
+use Lousson\Message\Error\InvalidMessageError;
 
 /**
- *  An interface for record message brokers
+ *  An abstract message provider implementation
  *
- *  The RecordMessageBroker interface extends the AnyMessageBroker API by
- *  the methods from the RecordMessageHandler and RecordMessageProvider
- *  interfaces.
+ *  The Lousson\Message\AbstractMessageProvider class implements the API
+ *  specified by the AnyMessageProvider interface as far as possible -
+ *  without assuming too many implementation details. This might ease the
+ *  creation of new message providers.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-interface RecordMessageBroker
-    extends AnyMessageBroker, RecordMessageHandler, RecordMessageProvider
+abstract class AbstractMessageProvider implements AnyMessageProvider
 {
+    /**
+     *  Create a provider instance
+     *
+     *  The constructor allows the provisioning of a custom URI factory
+     *  instance for the provider to operate on - instread of the builtin
+     *  default.
+     *
+     *  @param  AnyURIFactory       $uriFactory     The URI factory
+     */
+    public function __construct(AnyURIFactory $uriFactory = null)
+    {
+        if (null === $uriFactory) {
+            $uriFactory = new BuiltinURIFactory();
+        }
+
+        $this->uriFactory = $uriFactory;
+    }
+
+    /**
+     *  Convert an URI into an URI object
+     *
+     *  The fetchURI() method is used internally to validate the $uri
+     *  provided and to parse it into an instance of the AnyURI interface.
+     *
+     *  @param  string              $uri        The URI to parse
+     *
+     *  @return \Lousson\URI\AnyURI
+     *          An URI instance is returned on success
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     */
+    protected function fetchURI($uri)
+    {
+        if (!$uri instanceof \Lousson\URI\AnyURI) try {
+            $uri = $this->uriFactory->getURI($uri);
+        }
+        catch (\Lousson\URI\AnyURIException $error) {
+            $message = $error->getMessage();
+            $code = $error->getCode();
+            throw new InvalidMessageError($message, $code, $error);
+        }
+
+        return $uri;
+    }
+
+    /**
+     *  The provider's URI factory instance
+     *
+     *  @var \Lousson\URI\AnyURIFactory
+     */
+    private $uriFactory;
 }
 

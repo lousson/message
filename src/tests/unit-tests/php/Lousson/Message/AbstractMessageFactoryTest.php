@@ -34,7 +34,7 @@
 /**
  *  Lousson\Message\AbstractMessageFactoryTest class definition
  *
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
@@ -49,7 +49,7 @@ use Lousson\Message\AbstractMessageTest;
  *  An abstract test case for message factories
  *
  *  @since      lousson/Lousson_Message-0.1.0
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  */
 abstract class AbstractMessageFactoryTest extends AbstractMessageTest
 {
@@ -74,8 +74,14 @@ abstract class AbstractMessageFactoryTest extends AbstractMessageTest
      *  @param  string              $data       The message data
      *  @param  string              $type       The message media type
      *
-     *  @dataProvider               provideMessageParameters
+     *  @dataProvider               provideValidMessageData
      *  @test
+     *
+     *  @throws \PHPUnit_Framework_AssertionFailedError
+     *          Raised in case an assertion has failed
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
      */
     public function testGetMessage($data, $type = null)
     {

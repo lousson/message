@@ -93,6 +93,15 @@ abstract class GenericMessageResolver implements AnyMessageResolver
      *  @return \Lousson\Message\AnyMessageHandler
      *          A message handler instance is returned on success,
      *          NULL otherwise
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     abstract public function lookupHandler(AnyURI $uri);
 
@@ -107,6 +116,15 @@ abstract class GenericMessageResolver implements AnyMessageResolver
      *  @return \Lousson\Message\AnyMessageHandler
      *          A message handler instance is returned on success,
      *          NULL otherwise
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     abstract public function lookupProvider(AnyURI $uri);
 
@@ -126,8 +144,13 @@ abstract class GenericMessageResolver implements AnyMessageResolver
      *          NULL otherwise
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the given $uri is malformed or an internal
-     *          error occured
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     final public function resolveHandler(&$uri)
     {
@@ -151,8 +174,13 @@ abstract class GenericMessageResolver implements AnyMessageResolver
      *          NULL otherwise
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the given $uri is malformed or an internal
-     *          error occured
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     final public function resolveProvider(&$uri)
     {
@@ -174,8 +202,13 @@ abstract class GenericMessageResolver implements AnyMessageResolver
      *          NULL otherwise
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the given $uri is malformed or an internal
-     *          error occured
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     private function resolveEntity(&$uri, $method)
     {

@@ -43,17 +43,16 @@
 namespace Lousson\Message\Builtin;
 
 /** Interfaces: */
-use Lousson\Message\AnyMessageException;
 use Lousson\Message\AnyMessageFactory;
 
 /** Dependencies: */
 use Lousson\Message\Generic\GenericMessage;
 
 /**
- *  A generic message implementation
+ *  The default message factory implementation
  *
- *  The BuiltinMessageFactory class is a generic implementation of the AnyMessage
- *  interface.
+ *  The BuiltinMessageFactory class is the default implementation of the
+ *  AnyMessageFactory interface.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
@@ -74,11 +73,14 @@ class BuiltinMessageFactory implements AnyMessageFactory
      *          A message instance is returned on success
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the message could not get created
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case an argument is considered invalid
      */
-    public function getMessage($data, $type = null)
+    public function getMessage($content, $type = null)
     {
-        $message = new GenericMessage($data, $type);
+        $message = new GenericMessage($content, $type);
         return $message;
     }
 }

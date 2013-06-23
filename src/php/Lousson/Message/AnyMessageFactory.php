@@ -67,8 +67,11 @@ interface AnyMessageFactory
      *          A message instance is returned on success
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the message could not get created
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case an argument is considered invalid
      */
-    public function getMessage($data, $type = null);
+    public function getMessage($content, $type = null);
 }
 
