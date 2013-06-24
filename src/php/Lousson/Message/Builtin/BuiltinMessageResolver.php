@@ -46,7 +46,7 @@ namespace Lousson\Message\Builtin;
 use Lousson\URI\AnyURI;
 
 /** Dependencies: */
-use Lousson\Message\Generic\GenericMessageResolver;
+use Lousson\Message\AbstractMessageResolver;
 
 /**
  *  The default message resolver implementation
@@ -57,7 +57,7 @@ use Lousson\Message\Generic\GenericMessageResolver;
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class BuiltinMessageResolver extends GenericMessageResolver
+class BuiltinMessageResolver extends AbstractMessageResolver
 {
     /**
      *  A hook for resolving handlers

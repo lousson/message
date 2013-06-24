@@ -45,6 +45,8 @@ namespace Lousson\Message;
 /** Dependencies: */
 use Lousson\Message\AnyMessageResolver;
 use Lousson\Message\AbstractMessageTest;
+use Lousson\Message\Callback\CallbackMessageHandler;
+use Lousson\Message\Callback\CallbackMessageProvider;
 
 /**
  *  An abstract test case for message resolvers
@@ -183,6 +185,48 @@ abstract class AbstractMessageResolverTest extends AbstractMessageTest
     {
         $resolver = $this->getMessageResolver();
         $resolver->resolveProvider($uri);
+    }
+
+    /**
+     *  Create a message handler instance
+     *
+     *  The getMessageHandler() method is used internally to create a
+     *  callback message handler instance.
+     *
+     *  @param  Closure             $callback   The handler callback
+     *
+     *  @return \Lousson\Message\Callback\CallbackMessageHandler
+     *          A message handler instance is returned on success
+     */
+    protected function getMessageHandler(Closure $callback = null)
+    {
+        if (null === $callback) {
+            $callback = function() {};
+        }
+
+        $handler = new CallbackMessageHandler($callback);
+        return $handler;
+    }
+
+    /**
+     *  Create a message provider instance
+     *
+     *  The getMessageProvider() method is used internally to create a
+     *  callback message provider instance.
+     *
+     *  @param  Closure             $callback   The provider callback
+     *
+     *  @return \Lousson\Message\Callback\CallbackMessageProvider
+     *          A message provider instance is returned on success
+     */
+    protected function getMessageProvider(Closure $callback = null)
+    {
+        if (null === $callback) {
+            $callback = function() { return null; };
+        }
+
+        $provider = new CallbackMessageProvider($callback);
+        return $provider;
     }
 }
 

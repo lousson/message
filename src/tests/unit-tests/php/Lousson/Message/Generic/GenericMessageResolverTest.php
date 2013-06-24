@@ -49,7 +49,7 @@ use Lousson\URI\Generic\GenericURI;
 
 /** Exceptions: */
 use Lousson\Message\Error\RuntimeMessageError;
-use DomainException;
+use Lousson\URI\Builtin\BuiltinURIResolver;
 
 /**
  *  A test case for the generic message resolver
@@ -79,272 +79,82 @@ final class GenericMessageResolverTest
      */
     public function getMessageResolver()
     {
-        $resolver = $this->getMock(
-            "Lousson\\Message\\Generic\\GenericMessageResolver",
-            array("lookupHandler", "lookupProvider")
-        );
-
+        $fallback = $this->getMock("Lousson\\Message\\AnyMessageResolver");
+        $resolver = new BuiltinURIResolver();
+        $resolver = new GenericMessageResolver($resolver, null, $fallback);
         return $resolver;
     }
 
     /**
-     *  Test the resolveHandler() method
+     *  Test the setHandler() method
      *
-     *  The testResolveHandlerWithResolver() method is a test case that
-     *  verifies whether an URI resolver passed to the message resolver's
-     *  constructor is actually used when resolveHandler() is invoked.
-     *
-     *  @throws \Exception
-     *          Raised in case of an implementation error
-     */
-    public function testResolveHandlerWithResolver()
-    {
-        $uriString = "urn:lousson:test";
-        $uriObject = GenericURI::create($uriString);
-
-        $mock = $this->getMock(
-            "Lousson\\URI\\AnyURIResolver",
-            array("resolve", "resolveURI")
-        );
-
-        $mock
-            ->expects($this->once())
-            ->method("resolve")
-            ->with($this->equalTo($uriString))
-            ->will($this->returnValue(array($uriObject)));
-
-        $resolver = $this->getMock(
-            "Lousson\\Message\\Generic\\GenericMessageResolver",
-            array("lookupHandler", "lookupProvider"), array($mock)
-        );
-
-        $resolver->resolveHandler($uriString);
-    }
-
-    /**
-     *  Test the resolveProvider() method
-     *
-     *  The testResolveProviderWithResolver() method is a test case that
-     *  verifies whether an URI resolver passed to the message resolver's
-     *  constructor is actually used when resolveProvider() is invoked.
-     *
-     *  @throws \Exception
-     *          Raised in case of an implementation error
-     */
-    public function testResolveProviderWithResolver()
-    {
-        $uriString = "urn:lousson:test";
-        $uriObject = GenericURI::create($uriString);
-
-        $mock = $this->getMock(
-            "Lousson\\URI\\AnyURIResolver",
-            array("resolve", "resolveURI")
-        );
-
-        $mock
-            ->expects($this->once())
-            ->method("resolve")
-            ->with($this->equalTo($uriString))
-            ->will($this->returnValue(array($uriObject)));
-
-        $resolver = $this->getMock(
-            "Lousson\\Message\\Generic\\GenericMessageResolver",
-            array("lookupHandler", "lookupProvider"), array($mock)
-        );
-
-        $resolver->resolveProvider($uriString);
-    }
-
-    /**
-     *  Test the lookupHandler() method
-     *
-     *  The testLookupHandler() method is a test case that verifies the
-     *  resolver returning the handler returned by lookupHandler() when
-     *  the resolveHandler() method is invoked.
+     *  The testSetHandler() method is a test case for the setHandler()
+     *  method. It verifies that the setter/getter association is working
+     *  and finally tests the parameter validation.
      *
      *  @throws \PHPUnit_Framework_AssertionFailedError
-     *          Raised in case the return values are not the same
+     *          Raised in case an assertion has failed
+     *
+     *  @throws \Lousson\Message\Error\InvalidMessageError
+     *          Raised in case the test is successful
      *
      *  @throws \Exception
      *          Raised in case of an implementation error
      */
-    public function testLookupHandler()
+    public function testSetHandler()
     {
-        $handler = $this->getMock("Lousson\\Message\\AnyMessageHandler");
-        $resolver = $this->getMock(
-            "Lousson\\Message\\Generic\\GenericMessageResolver",
-            array("lookupHandler", "lookupProvider")
-        );
+        $resolver = $this->getMessageResolver();
+        $resolverClass = get_class($resolver);
 
-        $resolver
-            ->expects($this->any())
-            ->method("lookupHandler")
-            ->will($this->returnValue($handler));
+        $handler = $this->getMessageHandler();
+        $resolver->setHandler("foo", $handler);
+        $uri = "foo:bar";
 
-        $uri = "urn:lousson:test";
-        $result = $resolver->resolveHandler($uri);
-        $this->assertSame($handler, $result);
+        $this->assertSame(
+            $handler, $resolver->resolveHandler($uri), sprintf(
+            "The %s::resolveHandler() method must return the handler ".
+            "formerly assigned via setHandler()",
+            $resolverClass
+        ));
+
+        $this->setExpectedException(self::I_EXCEPTION);
+        $resolver->setHandler(":äöü", $handler);
     }
 
     /**
-     *  Test the lookupProvider() method
+     *  Test the setProvider() method
      *
-     *  The testLookupProvider() method is a test case that verifies the
-     *  resolver returning the provider returned by lookupProvider() when
-     *  the resolveProvider() method is invoked.
+     *  The testSetProvider() method is a test case for the setProvider()
+     *  method. It verifies that the setter/getter association is working
+     *  and finally tests the parameter validation.
      *
      *  @throws \PHPUnit_Framework_AssertionFailedError
-     *          Raised in case the return values are not the same
+     *          Raised in case an assertion has failed
      *
-     *  @throws \Exception
-     *          Raised in case of an implementation error
-     */
-    public function testLookupProvider()
-    {
-        $provider = $this->getMock("Lousson\\Message\\AnyMessageProvider");
-        $resolver = $this->getMock(
-            "Lousson\\Message\\Generic\\GenericMessageResolver",
-            array("lookupHandler", "lookupProvider")
-        );
-
-        $resolver
-            ->expects($this->any())
-            ->method("lookupProvider")
-            ->will($this->returnValue($provider));
-
-        $uri = "urn:lousson:test";
-        $result = $resolver->resolveProvider($uri);
-        $this->assertSame($provider, $result);
-    }
-
-    /**
-     *  Test the resolveHandler() method
-     *
-     *  The testResolveHandlerWithValidError() method is a test case for
-     *  the resolveHandler() method. It verifies whether a message error
-     *  raised by the lookupHandler() method is passed through.
-     *
-     *  @expectedException          \Lousson\Message\AnyMessageException
-     *  @test
-     *
-     *  @throws \Lousson\Message\AnyMessageException
+     *  @throws \Lousson\Message\Error\InvalidMessageError
      *          Raised in case the test is successful
      *
      *  @throws \Exception
      *          Raised in case of an implementation error
      */
-    public function testResolveHandlerWithValidError()
+    public function testSetProvider()
     {
-        $resolver = $this->getMock(
-            "Lousson\\Message\\Generic\\GenericMessageResolver",
-            array("lookupHandler", "lookupProvider")
-        );
+        $resolver = $this->getMessageResolver();
+        $resolverClass = get_class($resolver);
 
-        $resolver
-            ->expects($this->any())
-            ->method("lookupHandler")
-            ->will($this->throwException(new RuntimeMessageError()));
+        $provider = $this->getMessageProvider();
+        $resolver->setProvider("foo", $provider);
+        $uri = "foo:bar";
 
-        $uri = "urn:lousson:test";
-        $resolver->resolveHandler($uri);
-    }
+        $this->assertSame(
+            $provider, $resolver->resolveProvider($uri), sprintf(
+            "The %s::resolveProvider() method must return the provider ".
+            "formerly assigned via setProvider()",
+            $resolverClass
+        ));
 
-    /**
-     *  Test the resolveProvider() method
-     *
-     *  The testResolveProviderWithValidError() method is a test case for
-     *  the resolveProvider() method. It verifies whether a message error
-     *  raised by the lookupProvider() method is passed through.
-     *
-     *  @expectedException          \Lousson\Message\AnyMessageException
-     *  @test
-     *
-     *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the test is successful
-     *
-     *  @throws \Exception
-     *          Raised in case of an implementation error
-     */
-    public function testResolveProviderWithValidError()
-    {
-        $resolver = $this->getMock(
-            "Lousson\\Message\\Generic\\GenericMessageResolver",
-            array("lookupHandler", "lookupProvider")
-        );
-
-        $resolver
-            ->expects($this->any())
-            ->method("lookupProvider")
-            ->will($this->throwException(new RuntimeMessageError()));
-
-        $uri = "urn:lousson:test";
-        $resolver->resolveProvider($uri);
-    }
-
-    /**
-     *  Test the resolveHandler() method
-     *
-     *  The testResolveHandlerWithValidError() method is a test case for
-     *  the resolveHandler() method. It verifies whether an some arbitrary
-     *  error raised by the lookupHandler() method is wrapped to become an
-     *  AnyMessageException instance before it is re-raised.
-     *
-     *  @expectedException          \Lousson\Message\AnyMessageException
-     *  @test
-     *
-     *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the test is successful
-     *
-     *  @throws \Exception
-     *          Raised in case of an implementation error
-     */
-    public function testResolveHandlerWithInvalidError()
-    {
-        $resolver = $this->getMock(
-            "Lousson\\Message\\Generic\\GenericMessageResolver",
-            array("lookupHandler", "lookupProvider")
-        );
-
-        $resolver
-            ->expects($this->any())
-            ->method("lookupHandler")
-            ->will($this->throwException(new DomainException()));
-
-        $uri = "urn:lousson:test";
-        $resolver->resolveHandler($uri);
-    }
-
-    /**
-     *  Test the resolveProvider() method
-     *
-     *  The testResolveProviderWithValidError() method is a test case for
-     *  the resolveProvider() method. It verifies whether an some arbitrary
-     *  error raised by the lookupProvider() method is wrapped to become an
-     *  AnyMessageException instance before it is re-raised.
-     *
-     *  @expectedException          \Lousson\Message\AnyMessageException
-     *  @test
-     *
-     *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the test is successful
-     *
-     *  @throws \Exception
-     *          Raised in case of an implementation error
-     */
-    public function testResolveProviderWithInvalidError()
-    {
-        $resolver = $this->getMock(
-            "Lousson\\Message\\Generic\\GenericMessageResolver",
-            array("lookupHandler", "lookupProvider")
-        );
-
-        $resolver
-            ->expects($this->any())
-            ->method("lookupProvider")
-            ->will($this->throwException(new DomainException()));
-
-        $uri = "urn:lousson:test";
-        $resolver->resolveProvider($uri);
+        $this->setExpectedException(self::I_EXCEPTION);
+        $resolver->setProvider(":äöü", $provider);
     }
 }
 

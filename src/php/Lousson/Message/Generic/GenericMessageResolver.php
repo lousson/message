@@ -43,19 +43,19 @@
 namespace Lousson\Message\Generic;
 
 /** Interfaces: */
-use Lousson\Message\AnyMessageException;
+use Lousson\Message\AnyMessageHandler;
+use Lousson\Message\AnyMessageProvider;
 use Lousson\Message\AnyMessageResolver;
-use Lousson\URI\AnyURIException;
+use Lousson\URI\AnyURIFactory;
 use Lousson\URI\AnyURIResolver;
 use Lousson\URI\AnyURI;
 
 /** Dependencies: */
-use Lousson\URI\Generic\GenericURI;
+use Lousson\Message\AbstractMessageResolver;
+use Lousson\URI\Builtin\BuiltinURIUtil;
 
 /** Exceptions: */
 use Lousson\Message\Error\InvalidMessageError;
-use Lousson\Message\Error\RuntimeMessageError;
-use Exception;
 
 /**
  *  A generic message resolver implementation
@@ -66,7 +66,7 @@ use Exception;
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-abstract class GenericMessageResolver implements AnyMessageResolver
+class GenericMessageResolver extends AbstractMessageResolver
 {
     /**
      *  Create a resolver instance
@@ -74,12 +74,116 @@ abstract class GenericMessageResolver implements AnyMessageResolver
      *  The constructor allows the caller to provide an URI resolver for
      *  the new instance. Note that this parameter is optional: If it is
      *  absent, each URI will resolve to itself.
+     *  The also optional $fallback parameter can be used to provide a
+     *  fallback resolver invoked when no entity is found, whilst the URI
+     *  $factory parameter is used to force the use of an alternative URI
+     *  factory.
      *
      *  @param  AnyURIResolver      $resolver       The URI resolver
+     *  @param  AnyURIFactory       $factory        The URI factory
+     *  @param  AnyMessageResolver  $fallback       The fallback resolver
      */
-    public function __construct(AnyURIResolver $resolver = null)
+    public function __construct(
+        AnyURIResolver $resolver = null,
+        AnyURIFactory $factory = null,
+        AnyMessageResolver $fallback = null
+    ) {
+        parent::__construct($resolver, $factory);
+
+        $this->fallback = $fallback;
+        assert($fallback !== $this);
+    }
+
+    /**
+     *  Assign a handler instance
+     *
+     *  The setHandler() method is used to associate the message $handler
+     *  with the given URI $scheme.
+     *
+     *  @param  string              $scheme     The URI scheme to resolve
+     *  @param  AnyMessageHandler   $handler    The handler to assign
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI scheme is considered invalid
+     */
+    public function setHandler($scheme, AnyMessageHandler $handler)
     {
-        $this->resolver = $resolver;
+        $scheme = $this->fetchScheme($scheme);
+        $this->handlers[$scheme] = $handler;
+    }
+
+    /**
+     *  Retrieve a handler instance
+     *
+     *  The getHandler() method is used to retrieve the message handler
+     *  associated with the given URI $scheme, if any.
+     *
+     *  @param  string              $scheme     The URI scheme to resolve
+     *
+     *  @return \Lousson\Message\AnyMessageHandler
+     *          A message handler instance is returned on success,
+     *          NULL otherwise
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is scheme considered invalid
+     */
+    public function getHandler($scheme)
+    {
+        $scheme = $this->fetchScheme($scheme);
+        $handler = @$this->handlers[$scheme];
+        return $handler;
+    }
+
+    /**
+     *  Assign a provider instance
+     *
+     *  The setProvider() method is used to associate the message $provider
+     *  with the given URI $scheme.
+     *
+     *  @param  string              $scheme     The URI scheme to resolve
+     *  @param  AnyMessageProvider  $provider   The provider to assign
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is scheme considered invalid
+     */
+    public function setProvider($scheme, AnyMessageProvider $provider)
+    {
+        $scheme = $this->fetchScheme($scheme);
+        $this->providers[$scheme] = $provider;
+    }
+
+    /**
+     *  Retrieve a provider instance
+     *
+     *  The setProvider() method is used to retrieve the message provider
+     *  associated with the given URI $scheme, if any.
+     *
+     *  @param  string              $scheme     The URI scheme to resolve
+     *
+     *  @return \Lousson\Message\AnyMessageProvider
+     *          A message provider instance is returned on success,
+     *          NULL otherwise
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is scheme considered invalid
+     */
+    public function getProvider($scheme)
+    {
+        $scheme = $this->fetchScheme($scheme);
+        $provider = @$this->providers[$scheme];
+        return $provider;
     }
 
     /**
@@ -103,7 +207,12 @@ abstract class GenericMessageResolver implements AnyMessageResolver
      *  @throws \RuntimeException
      *          Raised in case an internal error occurred
      */
-    abstract public function lookupHandler(AnyURI $uri);
+    final public function lookupHandler(AnyURI $uri)
+    {
+        $scheme = (string) $uri->getPart(AnyURI::PART_SCHEME);
+        $handler = $this->getHandler($scheme);
+        return $handler;
+    }
 
     /**
      *  A hook for resolving providers
@@ -126,7 +235,12 @@ abstract class GenericMessageResolver implements AnyMessageResolver
      *  @throws \RuntimeException
      *          Raised in case an internal error occurred
      */
-    abstract public function lookupProvider(AnyURI $uri);
+    final public function lookupProvider(AnyURI $uri)
+    {
+        $scheme = (string) $uri->getPart(AnyURI::PART_SCHEME);
+        $provider = $this->getProvider($scheme);
+        return $provider;
+    }
 
     /**
      *  Resolve message handlers
@@ -154,7 +268,12 @@ abstract class GenericMessageResolver implements AnyMessageResolver
      */
     final public function resolveHandler(&$uri)
     {
-        $handler = $this->resolveEntity($uri, "lookupHandler");
+        $handler = parent::resolveHandler($uri);
+
+        if (!isset($handler) && isset($this->fallback)) {
+            $handler = $this->fallback->resolveHandler($uri);
+        }
+
         return $handler;
     }
 
@@ -184,102 +303,61 @@ abstract class GenericMessageResolver implements AnyMessageResolver
      */
     final public function resolveProvider(&$uri)
     {
-        $provider = $this->resolveEntity($uri, "lookupProvider");
+        $provider = parent::resolveProvider($uri);
+
+        if (!isset($provider) && isset($this->fallback)) {
+            $provider = $this->fallback->resolveProvider($uri);
+        }
+
         return $provider;
     }
 
     /**
-     *  Resolve message entities
+     *  Fetch URI scheme names
      *
-     *  The resolveEntity() method is used internally to implement both,
-     *  the resolveHandler() and resolveProvider() methods.
+     *  The fetchScheme() method is used internally to parse, validate and
+     *  normalize the name of the URI $scheme provided.
      *
-     *  @param  string              $uri        The URI to resolve
-     *  @param  string              $method     The lookup method to use
+     *  @param  string              $scheme     The URI scheme to parse
      *
-     *  @return object
-     *          A handler or provider instance is returned on success,
-     *          NULL otherwise
-     *
-     *  @throws \Lousson\Message\AnyMessageException
-     *          All exceptions raised implement this interface
-     *
-     *  @throws \InvalidArgumentException
-     *          Raised in case the URI is considered invalid
-     *
-     *  @throws \RuntimeException
-     *          Raised in case an internal error occurred
-     */
-    private function resolveEntity(&$uri, $method)
-    {
-        $resolvedURIs = $this->resolveURI($uri);
-        $entity = null;
-
-        try {
-            foreach ($resolvedURIs as $resolved) {
-                if ($entity = $this->$method($resolved)) {
-                    $uri = $resolved;
-                    break;
-                }
-            }
-        }
-        catch (AnyMessageException $error) {
-            /* Allowed by the AnyMessageResolver interface */
-            throw $error;
-        }
-        catch (Exception $error) {
-            $class = get_class($error);
-            $message = "Could not resolve entity; caught $class";
-            $code = $error->getCode();
-            throw new RuntimeMessageError($message, $code, $error);
-        }
-
-        return $entity;
-    }
-
-    /**
-     *  Resolve URIs
-     *
-     *  The resolveURI() method is used internally to access and invoke
-     *  the URI resolver given to the constructor, if any, and convert the
-     *  given $uri to a list of one or more URIs to look up handlers and
-     *  providers for.
-     *
-     *  @param  string              $uri        The URI to resolve
-     *
-     *  @return array
-     *          A list of URI instances is returned on success
+     *  @return string
+     *          The normalized URI scheme name is returned on success
      *
      *  @throws \Lousson\Message\Error\InvalidMessageError
-     *          Raised in case the given $uri is malformed
+     *          Raised in case the URI scheme is considered invalid
      */
-    private function resolveURI($uri)
+    private function fetchScheme($scheme)
     {
         try {
-            if (null !== $this->resolver) {
-                $resolved = $this->resolver->resolve($uri);
-            }
-
-            if (empty($resolved)) {
-                $uri = $uri instanceof AnyURI? $uri: GenericURI::create($uri);
-                $resolved = array($uri);
-            }
-
-            return $resolved;
+            $scheme = BuiltinURIUtil::parseURIScheme($scheme);
+            return $scheme;
         }
-        catch (AnyURIException $error) {
+        catch (\Lousson\URI\AnyURIException $error) {
             $message = $error->getMessage();
-            $message = "Could not resolve entity URI; $message";
             $code = $error->getCode();
             throw new InvalidMessageError($message, $code, $error);
         }
     }
 
     /**
-     *  The URI resolver associated, if any
+     *  A mapping of URI schemes to handler instances
      *
-     *  @var \Lousson\URI\AnyURIResolver
+     *  @var array
      */
-    private $resolver;
+    private $handlers = array();
+
+    /**
+     *  A mapping of URI schemes to provider instances
+     *
+     *  @var array
+     */
+    private $providers = array();
+
+    /**
+     *  The fallback message resolver, if any
+     *
+     *  @var \Lousson\Message\AnyMessageResolver
+     */
+    private $fallback;
 }
 
