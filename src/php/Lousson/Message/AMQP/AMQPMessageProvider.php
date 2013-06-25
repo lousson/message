@@ -113,7 +113,7 @@ class AMQPMessageProvider implements AnyMessageProvider
             $token = $msg->getDeliveryTag();
             return $msg->getBody();
         }
-        catch (AMQPRuntimeError $error) {
+        catch (\Exception $error) {
             $message = 'Impl AMQP error:' . $error->getMessage() ;
             $code = RuntimeMessageError::E_INTERNAL_ERROR;
             throw new RuntimeMessageError($message, $code, $error);
@@ -256,7 +256,7 @@ class AMQPMessageProvider implements AnyMessageProvider
      *
      *  @var  array of \AMQPQueue
      */
-    private $queues = array();
+    private $queue = array();
 
     /**
      *  @var AMQPObjectsFactory
