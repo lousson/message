@@ -121,6 +121,43 @@ class AMQPObjectsFactory
     }
 
     /**
+     *  Create a new AMQP queue with a given name.
+     *
+     *  @param  string  $name
+     *
+     *  @return \AMQPQueue
+     *
+     *  @throws AMQPRuntimeError
+     *          Raised in case an internal AMQP error occurred.
+     */
+    public function createQueue($name)
+    {
+        $channel = $this->createChannel();
+
+        try {
+            $queue = new \AMQPQueue($channel);
+            $queue->setName($name);
+        }
+        catch (\AMQPChannelException $error) {
+            $message = 'Internal AMQP error';
+            $code = AMQPRuntimeError::E_INTERNAL_ERROR;
+            throw new AMQPRuntimeError($message, $code, $error);
+        }
+        catch (\AMQPConnectionException $error) {
+            $message = 'Internal AMQP error';
+            $code = AMQPRuntimeError::E_INTERNAL_ERROR;
+            throw new AMQPRuntimeError($message, $code, $error);
+        }
+        catch (\AMQPQueueException $error) {
+            $message = 'Internal AMQP error';
+            $code = AMQPRuntimeError::E_INTERNAL_ERROR;
+            throw new AMQPRuntimeError($message, $code, $error);
+        }
+
+        return $queue;
+    }
+
+    /**
      *  @var \AMQPConnection
      */
     private $connection;
