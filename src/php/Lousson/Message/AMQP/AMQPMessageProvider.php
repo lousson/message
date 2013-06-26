@@ -34,11 +34,11 @@
 /**
  *  Lousson\Message\AMQP\AMQPMessageHandler class definition
  *
- *  @package    org.lousson.message
- *  @copyright  (c) 2013, The Lousson Project
- *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
- *  @author     Carlos Ascaso <carlos.ascaso@sedo.de>
- *  @filesource
+ * @package    org.lousson.message
+ * @copyright  (c) 2013, The Lousson Project
+ * @license    http://opensource.org/licenses/bsd-license.php New BSD License
+ * @author     Carlos Ascaso <carlos.ascaso@sedo.de>
+ * @filesource
  */
 namespace Lousson\Message\AMQP;
 
@@ -59,26 +59,47 @@ use Lousson\Message\Error\RuntimeMessageError;
 use Lousson\URI\AnyURIException;
 
 /**
- *  Message handler implementation for publishing messages into an AMQP exchange
+ * Message handler implementation for publishing messages into an AMQP
+ * exchange
  *
- *  @since      lousson/Lousson_Message-0.1.0
- *  @package    org.lousson.message
+ * @since   lousson/Lousson_Message-0.1.0
+ * @package org.lousson.message
  */
-class AMQPMessageProvider implements AnyMessageProvider 
+class AMQPMessageProvider implements AnyMessageProvider
 {
+    /**
+     * The Queue must be cached.
+     *
+     * There is only a limited number of channels per connection.
+     * Without caching, a client running the fetch method in a loop
+     * without ack will hit the maximal number of channels
+     *
+     * @var  array of \AMQPQueue
+     */
+    private $queue = array();
+
+    /**
+     * @var AMQPObjectsFactory
+     */
+    private $amqpObjectsFactory;
+
+    /**
+     * @var AMQPURIParser
+     */
+    private $amqpURIParser;
+
     /**
      *  Create a new instance of the AMQP message handler.
      *
-     *  @param  AnyURI              $uri
-     *  @param  AMQPURIParser       $amqpURIParser
-     *  @param  AMQPObjectsFactory  $amqpObjectsFactory
+     * @param  AMQPURIParser      $amqpURIParser
+     * @param  AMQPObjectsFactory $amqpObjectsFactory
      */
     public function __construct(
         AMQPURIParser $amqpURIParser,
         AMQPObjectsFactory $amqpObjectsFactory
     )
     {
-        $this->amqpURIParser = $amqpURIParser;
+        $this->amqpURIParser      = $amqpURIParser;
         $this->amqpObjectsFactory = $amqpObjectsFactory;
     }
 
@@ -88,20 +109,20 @@ class AMQPMessageProvider implements AnyMessageProvider
      *  The processMessage() method is used to invoke the logic that
      *  processes the given $message according to the event $uri.
      *
-     *  @param  string              $uri        The event URI
-     *  @param  int                 $flags      The option bitmask
-     *  @param  mixed               $token      The delivery token
+     * @param string $uri   The event URI
+     * @param int    $flags The option bitmask
+     * @param mixed  $token The delivery token
      *
-     *  @throws \Lousson\Message\Error\RuntimeMessageError
-     *          Raised in case fetching the message has failed
+     * @return AnyMessage|null
+     * @throws \Lousson\Message\Error\RuntimeMessageError
+     *         Raised in case fetching the message has failed
      */
     public function fetch(
         $uri, $flags = self::FETCH_DEFAULT, &$token = null
     )
     {
-
         try {
-            if ( false === isset($this->queue)){
+            if (false === isset($this->queue)) {
                 $this->buildQueue($uri);
             }
 
@@ -111,25 +132,24 @@ class AMQPMessageProvider implements AnyMessageProvider
             }
 
             $token = $msg->getDeliveryTag();
+
             return $msg->getBody();
         }
         catch (\Exception $error) {
-            $message = 'Impl AMQP error:' . $error->getMessage() ;
-            $code = RuntimeMessageError::E_INTERNAL_ERROR;
+            $message = 'Impl AMQP error:' . $error->getMessage();
+            $code    = RuntimeMessageError::E_INTERNAL_ERROR;
             throw new RuntimeMessageError($message, $code, $error);
         }
-
     }
 
     /**
-     *  Buildd the queue object
+     * Build the queue object
      *
-     *  @param  string     $uri        The event URI
+     * @param  string $uri The event URI
      *
-     *  @throws \Lousson\Message\AnyURIException
+     * @throws \Lousson\Message\Error\InvalidMessageError
      *          Raised in case processing the URI has failed
-     *
-     *  @throws \Lousson\Message\RuntimeMessageError
+     * @throws \Lousson\Message\Error\RuntimeMessageError
      *          Raised in case creating the queue has failed
      */
     public function buildQueue($uri)
@@ -138,11 +158,10 @@ class AMQPMessageProvider implements AnyMessageProvider
 
         try {
             $amqpURI = $this->amqpURIParser->parseAnyURI($uriObj);
-
         }
         catch (AnyURIException $error) {
             $message = "Parsing the URI $uri failed";
-            $code = AnyURIException::E_INVALID;
+            $code    = AnyURIException::E_INVALID;
             throw new InvalidMessageError($message, $code, $error);
         }
 
@@ -157,49 +176,49 @@ class AMQPMessageProvider implements AnyMessageProvider
                 $this->amqpObjectsFactory->createQueue($queueName);
         }
         catch (AMQPRuntimeError $error) {
-            $message = 'Impl AMQP error creatinf the queue';
-            $code = RuntimeMessageError::E_INTERNAL_ERROR;
+            $message = 'Impl AMQP error creating the queue';
+            $code    = RuntimeMessageError::E_INTERNAL_ERROR;
             throw new RuntimeMessageError($message, $code, $error);
         }
     }
 
     /**
-     *  Acknowledge a message
+     * Acknowledge a message
      *
-     *  The acknowledge() method is used to tag a message (formerly
-     *  received via fetchToken() on the same instance) as acknowledged.
-     *  This is usually done after the processing of the message, when one
-     *  knows that no further errors can occur.
+     * The acknowledge() method is used to tag a message (formerly
+     * received via fetchToken() on the same instance) as acknowledged.
+     * This is usually done after the processing of the message, when one
+     * knows that no further errors can occur.
      *
-     *  The optional $flags parameter can be used to request special
-     *  behavior (none defined yet).
+     * The optional $flags parameter can be used to request special
+     * behavior (none defined yet).
      *
-     *  @param  mixed               $token      The delivery token
-     *  @param  int                 $flags      The option bitmask
+     * @param  mixed $token The delivery token
+     * @param  int   $flags The option bitmask
      *
-     *  @throws \Lousson\Message\RuntimeMessageException
+     * @throws \Lousson\Message\Error\RuntimeMessageError
      *          Raised in case the acknowledgement has failed
      */
-    public function acknowledge($token, $flags = self::ACK_DEFAULT){
-
+    public function acknowledge($token, $flags = self::ACK_DEFAULT)
+    {
         try {
             $this->queue->ack($token);
         }
         catch (AMQPChannelException $error) {
-            $message = 'Impl AMQP error. channel is not open:'.
+            $message = 'Impl AMQP error. channel is not open:' .
                 $error->getMessage();
-            $code = RuntimeMessageError::E_INTERNAL_ERROR;
+            $code    = RuntimeMessageError::E_INTERNAL_ERROR;
             throw new RuntimeMessageError($message, $code, $error);
         }
         catch (AMQPConnectionException $error) {
-            $message = 'Impl AMQP error. Connection lost: '.
+            $message = 'Impl AMQP error. Connection lost: ' .
                 $error->getMessage();
-            $code = RuntimeMessageError::E_INTERNAL_ERROR;
+            $code    = RuntimeMessageError::E_INTERNAL_ERROR;
             throw new RuntimeMessageError($message, $code, $error);
         }
     }
 
-   /**
+    /**
      *  Discard a message
      *
      *  The discard() method is used to tag a message (formerly received
@@ -211,27 +230,27 @@ class AMQPMessageProvider implements AnyMessageProvider
      *- AnyMessageProvider::DISC_REQUEUE
      *  Re-queue the message for the next call to fetch()
      *
-     *  @param  mixed               $token      The delivery token
-     *  @param  int                 $flags      The option bitmask
+     * @param  mixed $token The delivery token
+     * @param  int   $flags The option bitmask
      *
-     *  @throws \Lousson\Message\AnyMessageException
+     * @throws \Lousson\Message\AnyMessageException
      *          Raised in case discarding the message has failed
      */
-    public function discard($token, $flags = self::DISC_DEFAULT){
-
+    public function discard($token, $flags = self::DISC_DEFAULT)
+    {
         try {
             $this->queue->nack($token);
         }
         catch (AMQPChannelException $error) {
-            $message = 'Impl AMQP error. channel is not open:'.
+            $message = 'Impl AMQP error. channel is not open:' .
                 $error->getMessage();
-            $code = RuntimeMessageError::E_INTERNAL_ERROR;
+            $code    = RuntimeMessageError::E_INTERNAL_ERROR;
             throw new RuntimeMessageError($message, $code, $error);
         }
         catch (AMQPConnectionException $error) {
-            $message = 'Impl AMQP error. Connection lost: '.
+            $message = 'Impl AMQP error. Connection lost: ' .
                 $error->getMessage();
-            $code = RuntimeMessageError::E_INTERNAL_ERROR;
+            $code    = RuntimeMessageError::E_INTERNAL_ERROR;
             throw new RuntimeMessageError($message, $code, $error);
         }
     }
@@ -239,32 +258,12 @@ class AMQPMessageProvider implements AnyMessageProvider
     /**
      * Fetch the URI
      *
-     * @param  string 
-     * @return AnyURI 
+     * @param string $uri
+     *
+     * @return AnyURI
      */
-    protected function fetchURI($uri){
-
+    protected function fetchURI($uri)
+    {
         return GenericURI::create($uri);
     }
-
-    /**
-     *  The Queue must be cached. 
-     *
-     *  there is only a limited number of channels per connection.
-     *  Without caching, a client running the fetch method in a loop without ack 
-     *  will hit the maximal number of channels
-     *
-     *  @var  array of \AMQPQueue
-     */
-    private $queue = array();
-
-    /**
-     *  @var AMQPObjectsFactory
-     */
-    private $amqpObjectsFactory;
-
-    /**
-     *  @var AMQPURIParser
-     */
-    private $amqpURIParser;
 }
