@@ -63,7 +63,7 @@ use Lousson\Message\Error\RuntimeMessageError;
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class AMQPMessageProvider extends GenericMessageHandler
+class AMQPMessageHandler extends GenericMessageHandler
 {
     /**
      *  Create a new instance of the AMQP message handler.
