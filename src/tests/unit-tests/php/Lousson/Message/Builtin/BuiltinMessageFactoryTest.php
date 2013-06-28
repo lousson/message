@@ -49,6 +49,9 @@ use Lousson\Message\Builtin\BuiltinMessageFactory;
 /**
  *  A test case for the builtin message factory
  *
+ *  The Lousson\Message\Builtin\BuiltinMessageFactoryTest is a test case
+ *  for the builtin message factory implementation.
+ *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */

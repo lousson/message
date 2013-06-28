@@ -42,45 +42,50 @@
  */
 namespace Lousson\Message\AMQP;
 
-/** Dependencies: */
-use Lousson\Message\AMQP\Impl\AMQPObjectsFactory;
-use Lousson\Message\AMQP\URI\AMQPURIParser;
-use Lousson\Message\Generic\GenericMessageHandler;
-
 /** Interfaces: */
+use Lousson\Message\AnyMessageFactory;
 use Lousson\Message\AnyMessage;
+use Lousson\URI\AnyURIFactory;
 use Lousson\URI\AnyURI;
-use Lousson\URI\AnyURIException;
+
+/** Dependencies: */
+use AMQPExchange;
+use Lousson\Message\AbstractMessageHandler;
 
 /** Exceptions: */
-use Lousson\Message\AMQP\Error\AMQPRuntimeError;
-use Lousson\Message\Error\InvalidMessageError;
 use Lousson\Message\Error\RuntimeMessageError;
 
 /**
- *  Message handler implementation for publishing messages into an AMQP exchange
+ *  An AMQP message handler implementation
+ *
+ *  The Lousson\Message\AMQP\AMQPMessageHandler is a message handler
+ *  implementation based on AMQP exchanges.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class AMQPMessageHandler extends GenericMessageHandler
+class AMQPMessageHandler extends AbstractMessageHandler
 {
     /**
-     *  Create a new instance of the AMQP message handler.
+     *  Create a handler instance
      *
-     *  @param  AnyURI              $uri
-     *  @param  AMQPURIParser       $amqpURIParser
-     *  @param  AMQPObjectsFactory  $amqpObjectsFactory
+     *  The constructor allows the provisioning of custom message and URI
+     *  factory instances for the provider to operate on - instead of the
+     *  builtin default.
+     *
+     *  @param  AnyMessageFactory   $messageFactory The message factory
+     *  @param  AnyURIFactory       $uriFactory     The URI factory
      */
     public function __construct(
-        AnyURI $uri,
-        AMQPURIParser $amqpURIParser,
-        AMQPObjectsFactory $amqpObjectsFactory
-    )
-    {
-        $this->uri = $uri;
-        $this->amqpURIParser = $amqpURIParser;
-        $this->amqpObjectsFactory = $amqpObjectsFactory;
+        AMQPExchange $exchange,
+        $routingKey,
+        AnyMessageFactory $messageFactory = null,
+        AnyURIFactory $uriFactory = null
+    ) {
+        parent::__construct($messageFactory, $uriFactory);
+
+        $this->exchange = $exchange;
+        $this->routingKey = $routingKey;
     }
 
     /**
@@ -89,64 +94,74 @@ class AMQPMessageHandler extends GenericMessageHandler
      *  The processMessage() method is used to invoke the logic that
      *  processes the given $message according to the event $uri.
      *
-     *  @param  string     $uri        The event URI
-     *  @param  AnyMessage $message    The message instance
+     *  @param  string              $uri        The event URI
+     *  @param  AnyMessage          $message    The message instance
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case processing the message has failed
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case an argument is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     public function processMessage($uri, AnyMessage $message)
     {
         $uri = $this->fetchURI($uri);
+        $attributes = $this->getAttributes($uri, $message);
+        $content = $message->getContent();
 
         try {
-            $amqpURI = $this->amqpURIParser->parseAnyURI($uri);
+            $status = $this->exchange->publish(
+                $content,
+                $this->routingKey,
+                AMQP_NOPARAM,
+                $attributes
+            );
         }
-        catch (AnyURIException $error) {
-            $message = "Parsing the URI $uri failed";
-            $code = AnyURIException::E_INVALID;
-            throw new InvalidMessageError($message, $code, $error);
+        catch (\AMQPException $error) {
+            $class = get_class($error);
+            $notice = "Could not process AMQP message: Caught $error";
+            $code = RuntimeMessageError::E_UNKNOWN;
+            throw new RuntimeMessageError($notice, $code, $error);
         }
-
-        $exchangeName = $amqpURI->getExchange();
-        if (!$exchangeName) {
-            $message = "The given URI $uri contains no exchange information.";
-            throw new InvalidMessageError($message);
-        }
-
-        $routingKey = $amqpURI->getRoutingKey();
-        if (!$routingKey) {
-            $message = "The given URI $uri contains no routing key.";
-            throw new InvalidMessageError($message);
-        }
-
-        try {
-            $exchange = $this->amqpObjectsFactory->createExchange($exchangeName);
-            if (!$exchange->publish($message->getContent(), $routingKey)) {
-                $message = 'Publishing the message failed';
-                throw new RuntimeMessageError($message);
-            }
-        }
-        catch (AMQPRuntimeError $error) {
-            $message = 'Impl AMQP error';
-            $code = RuntimeMessageError::E_INTERNAL_ERROR;
-            throw new RuntimeMessageError($message, $code, $error);
-        }
-
     }
 
     /**
-     *  @var AMQPObjectsFactory
+     *  Create message attributes
+     *
+     *  The getAttributes() method is used internally to prepare the array
+     *  of attributes that is passed to the AMQPExchange::publish() method
+     *  as 4th parameter.
+     *
+     *  @param  AnyURI              $uri        The message/event URI
+     *  @param  AnyMessage          $message    The message itself
+     *
+     *  @return array
+     *          An array of message attributes is returned on success
      */
-    private $amqpObjectsFactory;
+    protected function getAttributes(AnyURI $uri, AnyMessage $message)
+    {
+        $attributes = array(
+            "content_type" => (string) $message->getType(),
+            "x_resource_id" => (string) $uri->getLexical(),
+        );
+
+        return $attributes;
+    }
 
     /**
-     *  @var AMQPURIParser
+     *  The AMQP exchange to operate on
+     *
+     *  @var \AMQPExchange
      */
-    private $amqpURIParser;
+    private $exchange;
 
     /**
-     *  @var AnyURI
+     *  The AMQP routing key for publishing messages
+     *
+     *  @var string
      */
-    private $uri;
+    private $routingKey;
 }

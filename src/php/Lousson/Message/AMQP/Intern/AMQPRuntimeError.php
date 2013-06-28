@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\AMQP\Impl\AMQPObjectsFactory class definition
+ *  Lousson\Message\AMQP\Intern\AMQPRuntimeError class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,86 +40,25 @@
  *  @author     Benjamin Schneider <benjamin.schneider.de at gmail.com>
  *  @filesource
  */
-namespace Lousson\Message\AMQP\Impl;
+namespace Lousson\Message\AMQP\Intern;
 
-use Lousson\Message\AMQP\Error\AMQPRuntimeError;
+/** Dependencies: */
+use Lousson\Error\RuntimeError;
+use Lousson\Message\AMQP\Intern\AMQPException;
 
 /**
- *  A factory for creating the AMQP PECL class instances.
+ *  An exception type for AMQP runtime errors
+ *
+ *  The Lousson\Message\AMQP\AMQPRuntimeError exception is raised by the
+ *  classes in the Lousson\Message\AMQP namespace whenever they encounter
+ *  an internal runtime error.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class AMQPObjectsFactory
+class AMQPRuntimeError
+    extends RuntimeError
+    implements AMQPException
 {
-    /**
-     *  @param  \AMQPConnection  $connection
-     */
-    public function __construct(\AMQPConnection $connection)
-    {
-        $this->connection = $connection;
-    }
-
-    /**
-     *  Create a new AMQP channel.
-     *
-     *  @return \AMQPChannel
-     *
-     *  @throws AMQPRuntimeError
-     *          Raised in case an internal AMQP error occurred.
-     */
-    public function createChannel()
-    {
-        try {
-            return new \AMQPChannel($this->connection);
-        }
-        catch (\AMQPConnectionException $error) {
-            $message = 'Internal AMQP error';
-            $code = AMQPRuntimeError::E_INTERNAL_ERROR;
-            throw new AMQPRuntimeError($message, $code, $error);
-        }
-    }
-
-    /**
-     *  Create a new AMQP exchange with a given name.
-     *
-     *  @param  string  $name
-     *
-     *  @return \AMQPExchange
-     *
-     *  @throws AMQPRuntimeError
-     *          Raised in case an internal AMQP error occurred.
-     */
-    public function createExchange($name)
-    {
-        $channel = $this->createChannel();
-
-        try {
-            $exchange = new \AMQPExchange($channel);
-            $exchange->setName($name);
-            $exchange->declareExchange();
-        }
-        catch (\AMQPChannelException $error) {
-            $message = 'Internal AMQP error';
-            $code = AMQPRuntimeError::E_INTERNAL_ERROR;
-            throw new AMQPRuntimeError($message, $code, $error);
-        }
-        catch (\AMQPConnectionException $error) {
-            $message = 'Internal AMQP error';
-            $code = AMQPRuntimeError::E_INTERNAL_ERROR;
-            throw new AMQPRuntimeError($message, $code, $error);
-        }
-        catch (\AMQPExchangeException $error) {
-            $message = 'Internal AMQP error';
-            $code = AMQPRuntimeError::E_INTERNAL_ERROR;
-            throw new AMQPRuntimeError($message, $code, $error);
-        }
-
-        return $exchange;
-    }
-
-    /**
-     *  @var \AMQPConnection
-     */
-    private $connection;
 }
+

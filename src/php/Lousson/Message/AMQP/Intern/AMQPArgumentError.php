@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\InvalidMessageError class definition
+ *  Lousson\Message\AMQP\Intern\AMQPArgumentError class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,26 +40,25 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Error;
+namespace Lousson\Message\AMQP\Intern;
 
 /** Dependencies: */
-use Lousson\Message\AnyMessageException;
 use Lousson\Error\InvalidArgumentError;
+use Lousson\Message\AMQP\Intern\AMQPException;
 
 /**
- *  An exception type for invalid messages
+ *  An exception type for AMQP argument errors
  *
- *  The Lousson\Message\Error\InvalidMessageError exception is raised by
- *  the builtin and generic implementations of the message interfaces when
- *  they encounter and error caused by invalid arguments - e.g. malformed
- *  message/event URIs or message content.
+ *  The Lousson\Message\AMQP\AMQPArgumentError exception is raised by the
+ *  classes in the Lousson\Message\AMQP namespace whenever they encounter
+ *  an error caused by an invalid argument.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class InvalidMessageError
+class AMQPArgumentError
     extends InvalidArgumentError
-    implements AnyMessageException
+    implements AMQPException
 {
 }
 

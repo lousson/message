@@ -71,28 +71,10 @@ final class CallbackMessageHandlerTest extends AbstractMessageHandlerTest
      */
     public function getMessageHandler()
     {
-        $callback = function(AnyURI $uri, AnyMessage $message) {
-            CallbackMessageHandlerTest::$uri = $uri;
-            CallbackMessageHandlerTest::$message = $message;
-        };
-
+        $callback = function(AnyURI $uri, AnyMessage $message) {};
         $handler = new CallbackMessageHandler($callback);
         return $handler;
     }
-
-    /**
-     *  The last URI processed
-     *
-     *  @var \Lousson\URI\AnyURI
-     */
-    private static $uri;
-
-    /**
-     *  The last message processed
-     *
-     *  @var \Lousson\Message\AnyMessage
-     */
-    private static $message;
 }
 
 

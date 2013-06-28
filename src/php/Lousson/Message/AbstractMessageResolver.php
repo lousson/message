@@ -58,10 +58,10 @@ use Lousson\Message\Error\RuntimeMessageError;
 /**
  *  An abstract message resolver implementation
  *
- *  The AbstractMessageResolver class is an abstract implementation of the
- *  AnyMessageResolver interface that operates on top of an URI resolver,
- *  in order to find various aliases for the URIs to resolve into message
- *  provider and handler instances.
+ *  The Lousson\Message\AbstractMessageResolver class is an abstract
+ *  implementation of the AnyMessageResolver interface that operates on
+ *  top of an URI resolver, in order to find various aliases for the URIs
+ *  to resolve into message provider and handler instances.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message

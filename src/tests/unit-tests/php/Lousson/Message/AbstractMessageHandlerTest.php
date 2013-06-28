@@ -48,8 +48,8 @@ use PHPUnit_Framework_TestCase;
 /**
  *  An abstract test case for message handlers
  *
- *  The AbstractMessageHandlerTest class serves as the base for testing
- *  implementations of the AnyMessageHandler interface.
+ *  The Lousson\Message\AbstractMessageHandlerTest class serves as the
+ *  base for testing implementations of the AnyMessageHandler interface.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message

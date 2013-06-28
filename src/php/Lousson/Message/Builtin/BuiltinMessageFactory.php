@@ -51,8 +51,8 @@ use Lousson\Message\Generic\GenericMessage;
 /**
  *  The default message factory implementation
  *
- *  The BuiltinMessageFactory class is the default implementation of the
- *  AnyMessageFactory interface.
+ *  The Lousson\Message\Builtin\BuiltinMessageFactory class is the default
+ *  implementation of the AnyMessageFactory interface.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
@@ -63,10 +63,11 @@ class BuiltinMessageFactory implements AnyMessageFactory
      *  Create a message instance
      *
      *  The getMessage() method is used to create a message instance to
-     *  represent the provided $content. The optional $type parameter can
-     *  be used to specify the (internet-) media-type of the content.
+     *  represent the provided $content; an arbitrary byte sequence.
+     *  The optional $type parameter can be used to specify the (internet-)
+     *  media-type of the content.
      *
-     *  @param  mixed               $content    The message data
+     *  @param  string              $content    The message data
      *  @param  string              $type       The message media type
      *
      *  @return \Lousson\Message\AnyMessage
@@ -78,7 +79,7 @@ class BuiltinMessageFactory implements AnyMessageFactory
      *  @throws \InvalidArgumentException
      *          Raised in case an argument is considered invalid
      */
-    public function getMessage($content, $type = null)
+    public function getMessage($content, $type = self::DEFAULT_TYPE)
     {
         $message = new GenericMessage($content, $type);
         return $message;

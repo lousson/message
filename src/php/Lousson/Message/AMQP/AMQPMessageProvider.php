@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Callback\CallbackMessageProvider class definition
+ *  Lousson\Message\AMQP\AMQPMessageProvider class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,96 +40,52 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Callback;
+namespace Lousson\Message\AMQP;
 
 /** Interfaces: */
-use Lousson\Message\AnyMessage;
-use Psr\Log\LoggerAwareInterface;
-use Psr\Log\LoggerInterface;
+use Lousson\URI\AnyURIFactory;
 
 /** Dependencies: */
+use AMQPEnvelope;
+use AMQPQueue;
 use Lousson\Message\AbstractMessageProvider;
 use Lousson\Message\Builtin\BuiltinMessageStash;
-use Closure;
+use Lousson\Message\Generic\GenericMessage;
 
 /** Exceptions: */
 use Lousson\Message\Error\InvalidMessageError;
+use Lousson\Message\Error\RuntimeMessageError;
 
 /**
- *  A callback message provider implementation
+ *  An AMQP message provider implementation
  *
- *  The Lousson\Message\Callback\CallbackMessageProvider implements the
- *  AnyMessageProvider interface based on a Closure callback provided at
- *  construction time.
+ *  The Lousson\Message\AMQP\AMQPMessageProvider is a message provider
+ *  implementation based on AMQP queues.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class CallbackMessageProvider
+class AMQPMessageProvider
     extends AbstractMessageProvider
-    implements LoggerAwareInterface
 {
     /**
      *  Create a provider instance
      *
-     *  The constructor requires to be provided with a Closure to be used
-     *  as the actual implementation of the fetch() method. This $callback
-     *  must accept one parameter, an instance of the AnyURI interface,
-     *  and return an instance of the AnyMessage interface or NULL.
+     *  The constructor requires the caller to provide the AMQPQueue the
+     *  provider shall operate on. It also allows the provisioning of a
+     *  custom URI factory, to be used instead of the builtin one.
      *
-     *  Optionally, one can also specify the URI $factory the message
-     *  provider shall operate with - instead of the builtin default.
-     *
-     *  @param  Closure             $callback   The fetch() callback
-     *  @param  AnyURIFactory       $factory    The URI factory to use
+     *  @param  AMQPQueue           $queue      The AMQP queue instance
+     *  @param  AnyURIFactory       $factory    The optional URI factory
      */
     public function __construct(
-        Closure $callback,
+        AMQPQueue $queue,
         AnyURIFactory $factory = null
     ) {
         parent::__construct($factory);
 
-        $provider = $this;
-        $notifier = function(array $stash) use ($provider) {
-            if ($logger = $provider->getLogger()) {
-                foreach ($stash as $key => $tuple) {
-                    $warning = "Discarded message {key} from \"{uri}\"";
-                    $context = array("key" => $key, "uri" => $tuple[0]);
-                    $logger->warning($warning, $context);
-                }
-            }
-        };
-
-        $this->stash = new BuiltinMessageStash($notifier);
-        $this->callback = $callback;
-    }
-
-    /**
-     *  Assign a logger instance
-     *
-     *  The setLogger() method is used to assign an instance of the PSR-3
-     *  LoggerInterface to the message provider. This logger is used e.g.
-     *  to protocol discarded messages
-     *
-     *  @param  LoggerInterface     $logger     The logger instance
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
-
-    /**
-     *  Obtain a logger instance
-     *
-     *  The getLogger() method is used to obtain the logger instance that
-     *  has been assigned via setLogger(), if any.
-     *
-     *  @return \Psr\Log\LoggerInterface
-     *          A logger instance is returned on success, NULL otherwise
-     */
-    public function getLogger()
-    {
-        return $this->logger;
+        $this->stash = new BuiltinMessageStash();
+        $this->queue = $queue;
     }
 
     /**
@@ -165,18 +121,34 @@ class CallbackMessageProvider
         &$token = null
     ) {
         $uri = $this->fetchURI($uri);
-        $key = $uri->getLexical();
+        $message = null;
 
-        if (!empty($this->requeued[$key])) {
-            $message = array_shift($this->requeued[$key]);
+        try {
+            $envelope = $this->queue->get(AMQP_NOPARAM);
         }
-        else {
-            $callback = $this->callback;
-            $message = $callback($uri);
+        catch (\AMQPException $error) {
+            $class = get_class($error);
+            $notice = "Could not fetch message: Caught $class";
+            $code = RuntimeMessageError::E_INTERNAL_ERROR;
+            throw new RuntimeMessageError($notice, $code, $error);
         }
 
-        if (isset($message) && self::FETCH_CONFIRM & (int) $flags) {
-            $token = $this->stash->store(array($uri, $message));
+        if ($envelope) {
+
+            $deliveryTag = $envelope->getDeliveryTag();
+            $message = $this->fetchMessage($envelope);
+
+            if (self::FETCH_CONFIRM & (int) $flags) {
+                $token = $this->stash->store($deliveryTag);
+            }
+            else try {
+                $status = $this->queue->ack($deliveryTag);
+                assert(false !== $status);
+            }
+            catch (\AMQPException $error) {
+                $notice = "Failed to ack/nack AMQP message: Caught $error";
+                trigger_error($notice, E_USER_WARNING);
+            }
         }
 
         return $message;
@@ -207,7 +179,27 @@ class CallbackMessageProvider
      */
     final public function acknowledge($token, $flags = self::ACK_DEFAULT)
     {
-        $this->stash->restore($token, __FUNCTION__);
+        $deliveryTag = $this->stash->restore($token, __FUNCTION__);
+
+        try {
+            $setup = ini_set("track_errors", true);
+            $php_errormsg = "UNKNOWN ERROR";
+            $status = @$this->queue->ack($deliveryTag);
+            $error = $php_errormsg;
+            ini_set("track_errors", $setup);
+        }
+        catch (\AMQPException $error) {
+            $class = get_class($error);
+            $message = "Could not acknowledge message: Caught $class";
+            $code = RuntimeMessageError::E_INTERNAL_ERROR;
+            throw new RuntimeMessageError($message, $code, $error);
+        }
+
+        if (!$status) {
+            $message = "Error while acknowledgeing token $token: $error";
+            $code = RuntimeMessageError::E_UNKNOWN;
+            throw new RuntimeMessageError($message, $code);
+        }
     }
 
     /**
@@ -236,63 +228,68 @@ class CallbackMessageProvider
      */
     final public function discard($token, $flags = self::DISC_DEFAULT)
     {
-        list($uri, $message) = $this->stash->restore($token, __FUNCTION__);
+        static $map = array(
+            self::DISC_DEFAULT => AMQP_NOPARAM,
+            self::DISC_REQUEUE => AMQP_REQUEUE,
+        );
 
-        if (self::DISC_REQUEUE & (int) $flags) {
-            $this->requeued[(string) $uri][] = $message;
+        $deliveryTag = $this->stash->restore($token, __FUNCTION__);
+
+        try {
+            $setup = ini_set("track_errors", true);
+            $php_errormsg = "UNKNOWN ERROR";
+            $status = @$this->queue->nack(
+                $deliveryTag,
+                $map[self::DISC_REQUEUE & $flags]
+            );
+            $error = $php_errormsg;
+            ini_set("track_errors", $setup);
         }
-        else if ($logger = $this->getLogger()) {
-            $notice = "Discarded message {token} from \"{uri}\"";
-            $context = array("token" => $token, "uri" => $uri);
-            $logger->warning($notice, $context);
+        catch (\AMQPException $error) {
+            $class = get_class($error);
+            $message = "Could not discard message: Caught $class";
+            $code = RuntimeMessageError::E_INTERNAL_ERROR;
+            throw new RuntimeMessageError($message, $code, $error);
+        }
+
+        if (!$status) {
+            $message = "Error while discarding token $token: $error";
+            $code = RuntimeMessageError::E_UNKNOWN;
+            throw new RuntimeMessageError($message, $code);
         }
     }
 
     /**
-     *  Cleanup
+     *  Fetch a message instance
      *
-     *  The constructor has been implemented explicitely in order to take
-     *  care of any messages not yet confirmed/discarded - or re-queued in
-     *  a former operation but never fetched again.
+     *  The fetchMessage() method is used internally to aggregate a message
+     *  instance from the data provided by an AMQP $envelope.
+     *
+     *  @param  AMQPException       $envelope       The AMQP envelope
+     *
+     *  @return \Lousson\Message\Generic\GenericMessage
+     *          A message instance is returned on success
      */
-    public function __destruct()
+    private function fetchMessage(AMQPEnvelope $envelope)
     {
-        foreach ($this->requeued as $uri => &$list) {
-            while (!empty($list)) {
-                $this->fetch($uri, self::FETCH_CONFIRM, $token);
-            }
-        }
-
-        /* Force stash cleanup here and now */
-        unset($this->stash);
+        $content = $envelope->getBody();
+        $type = $envelope->getContentType();
+        $message = new GenericMessage($content, $type);
+        return $message;
     }
 
     /**
-     *  A stash for managing pending message tokens
+     *  The AMQPQueue instance to fetch messages from
+     *
+     *  @var \AMQPQueue
+     */
+    private $queue;
+
+    /**
+     *  The message stash managing delivery tags
      *
      *  @var \Lousson\Message\Builtin\BuiltinMessageStash
      */
     private $stash;
-
-    /**
-     *  A map of requeued messages per-URI
-     *
-     *  @var array
-     */
-    private $requeued = array();
-
-    /**
-     *  The callback invoked by fetch()
-     *
-     *  @var \Closure
-     */
-    private $callback;
-
-    /**
-     *  The provider's logger instance, if any
-     *
-     *  @var \Psr\Log\LoggerInterface
-     */
-    private $logger;
 }
 

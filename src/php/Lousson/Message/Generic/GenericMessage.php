@@ -48,8 +48,8 @@ use Lousson\Message\AnyMessage;
 /**
  *  A generic message implementation
  *
- *  The GenericMessage class is a generic implementation of the AnyMessage
- *  interface.
+ *  The Lousson\Message\GenericMessage class is a generic implementation
+ *  of the AnyMessage interface.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
@@ -65,11 +65,17 @@ class GenericMessage implements AnyMessage
      *  @param  mixed               $content    The message data
      *  @param  string              $type       The message media type
      */
-    public function __construct($content, $type = null)
+    public function __construct($content, $type = self::DEFAULT_TYPE)
     {
-        if (null !== $content) {
+        if (isset($content)) {
             $this->content = (string) $content;
-            $this->type = null === $type? null: (string) $type;
+        }
+
+        if (isset($type)) {
+            $this->type = (string) $type;
+        }
+        else {
+            $this->type = self::DEFAULT_TYPE;
         }
     }
 
@@ -93,29 +99,18 @@ class GenericMessage implements AnyMessage
      *  Obtain the message's content type
      *
      *  The getRecord() method is used to obtain the mime- or (internet-)
-     *  media-type of the message's content. NULL is returned in case the
-     *  message does not have any content at all.
+     *  media-type of the message's content.
      *
      *  @return string
      *          The type of the message content is returned on success
      */
     final public function getType()
     {
-        if (!isset($this->content)) {
-            $type = null;
-        }
-        else if (isset($this->type)) {
-            $type = $this->type;
-        }
-        else {
-            $type = "application/octet-stream";
-        }
-
-        return $type;
+        return $this->type;
     }
 
     /**
-     *  The message's content
+     *  The message's content, if any
      *
      *  @var string
      */

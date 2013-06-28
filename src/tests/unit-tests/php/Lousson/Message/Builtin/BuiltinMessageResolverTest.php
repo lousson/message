@@ -49,13 +49,8 @@ use Lousson\Message\Builtin\BuiltinMessageResolver;
 /**
  *  A test case for the builtin message resolver
  *
- *  The BuiltinMessageResolverTest class is a test case derived from
- *  the AbstractMessageResolverTest. It extends the list of tests by checks
- *  specific for the implementation of the BuiltinMessageResolver class.
- *
- *  Note that the BuiltinMessageResolverTest has been declared as final.
- *  Authors of classes extending the BuiltinMessageResolver should extend
- *  the AbstractMessageResolverTest to implement their test cases.
+ *  The Lousson\Message\Builtin\BuiltinMessageResolverTest class is a test
+ *  case derived from the AbstractMessageResolverTest.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message

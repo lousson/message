@@ -48,8 +48,8 @@ use Lousson\Message\AnyMessage;
 /**
  *  An interface for message handlers
  *
- *  The AnyMessageHandler interface declares the API that must be provided
- *  by any message handler implementation.
+ *  The Lousson\Message\AnyMessageHandler interface declares the API that
+ *  must be provided by any message handler implementation.
  *
  *  These handlers are used to process messages of any kind, irregardless
  *  of the implementation details. One could, for example, write the data

@@ -45,8 +45,8 @@ namespace Lousson\Message;
 /**
  *  An interface for message provider
  *
- *  The AnyMessageProvider interface declares an API for message provider
- *  implementations in general.
+ *  The Lousson\Message\AnyMessageProvider interface declares an API for
+ *  message provider implementations in general.
  *
  *  Message providers are data sources to access messages with a pull API
  *  (rather than message handlers, which expect to get the data pushed to

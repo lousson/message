@@ -32,29 +32,30 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\AMQP\Impl\AMQPError class definition
+ *  Lousson\Message\AMQP\Intern\AMQPException interface definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
- *  @author     Benjamin Schneider <benjamin.schneider.de at gmail.com>
+ *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\AMQP\Error;
+namespace Lousson\Message\AMQP\Intern;
 
 /** Interfaces: */
-use Lousson\Message\Error\AnyMessageException;
-
-/** Exceptions: */
-use Lousson\Error\RuntimeError;
+use Lousson\Message\AnyMessageException;
 
 /**
- *  Error class for internal AMQP errors.
+ *  An interface for AMQP exceptions
+ *
+ *  The Lousson\Message\AMQP\Intern\AMQPException interface is implemented
+ *  by any exception type raised within the classes in the AMQP namespace
+ *  of the Lousson\Message implementation.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class AMQPRuntimeError extends RuntimeError implements AnyMessageException
+interface AMQPException extends AnyMessageException
 {
-
 }
+

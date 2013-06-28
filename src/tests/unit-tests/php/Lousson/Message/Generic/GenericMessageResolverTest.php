@@ -54,13 +54,10 @@ use Lousson\URI\Builtin\BuiltinURIResolver;
 /**
  *  A test case for the generic message resolver
  *
- *  The GenericMessageResolverTest class is a test case derived from
- *  the AbstractMessageResolverTest. It extends the list of tests by checks
- *  specific for the implementation of the GenericMessageResolver class.
- *
- *  Note that the GenericMessageResolverTest has been declared as final.
- *  Authors of classes extending the GenericMessageResolver should extend
- *  the AbstractMessageResolverTest to implement their test cases.
+ *  The Lousson\Message\Generic\GenericMessageResolverTest class is a test
+ *  case derived from the AbstractMessageResolverTest. It extends the list
+ *  of tests by checks specific for the implementation of the generic
+ *  message resolver.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message

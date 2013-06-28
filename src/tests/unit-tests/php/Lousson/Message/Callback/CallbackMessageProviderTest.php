@@ -110,8 +110,8 @@ final class CallbackMessageProviderTest extends AbstractMessageProviderTest
 
         while($provider->fetch($uri, $flags, $token));
         $provider->discard($token, self::DISC_REQUEUE);
+        $provider->__destruct();
         unset($provider);
     }
 }
-
 

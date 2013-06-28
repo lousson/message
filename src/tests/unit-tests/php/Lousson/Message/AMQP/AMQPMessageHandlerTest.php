@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\InvalidMessageError class definition
+ *  Lousson\Message\AMQP\AMQPMessageHandlerTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,26 +40,76 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Error;
+namespace Lousson\Message\AMQP;
+
+/** Interfaces: */
+use Lousson\Message\AnyMessage;
 
 /** Dependencies: */
-use Lousson\Message\AnyMessageException;
-use Lousson\Error\InvalidArgumentError;
+use Lousson\Message\AbstractMessageHandlerTest;
+use Lousson\Message\AMQP\AMQPMessageHandler;
 
 /**
- *  An exception type for invalid messages
- *
- *  The Lousson\Message\Error\InvalidMessageError exception is raised by
- *  the builtin and generic implementations of the message interfaces when
- *  they encounter and error caused by invalid arguments - e.g. malformed
- *  message/event URIs or message content.
+ *  A test case for the AMQP message handler
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class InvalidMessageError
-    extends InvalidArgumentError
-    implements AnyMessageException
+final class AMQPMessageHandlerTest extends AbstractMessageHandlerTest
 {
+    /**
+     *  Obtain a message handler instance
+     *
+     *  The getMessageHandler() method returns an instance of the message
+     *  handler class that is to be tested.
+     *
+     *  @return \Lousson\Message\AnyMessageHandler
+     *          A message handler instance is returned on success
+     */
+    public function getMessageHandler()
+    {
+        $exchange = $this->getMockBuilder("AMQPExchange")
+            ->disableOriginalConstructor()
+            ->getMock(array("publish"));
+
+        $handler = new AMQPMessageHandler($exchange, "test-route");
+        return $handler;
+    }
+
+    /**
+     *  Test the processMessage() method
+     *
+     *  The testProcessMessageException() verifies that AMQP exceptions
+     *  thrown in the provider's processMessage() method are catched and
+     *  wrapped.
+     *
+     *  @param  string              $uri        The message/event URI
+     *  @param  AnyMessage          $message    The message itself
+     *
+     *  @dataProvider       provideValidProcessMessageParameters
+     *  @expectedException  Lousson\Message\Error\RuntimeMessageError
+     *  @test
+     *
+     *  @throws \Lousson\Message\Error\RuntimeMessageError
+     *          Raised in case the test is successful
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    public function testProcessMessageException($uri, AnyMessage $message)
+    {
+        $exchange = $this->getMockBuilder("AMQPExchange")
+            ->disableOriginalConstructor()
+            ->getMock(array("publish"));
+
+        $exchange
+            ->expects($this->any())
+            ->method("publish")
+            ->will($this->throwException(new \AMQPException));
+
+        $handler = new AMQPMessageHandler($exchange, "test-route");
+        $handler->processMessage($uri, $message);
+    }
 }
+
 

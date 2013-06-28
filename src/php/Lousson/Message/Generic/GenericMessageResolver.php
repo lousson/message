@@ -60,8 +60,8 @@ use Lousson\Message\Error\InvalidMessageError;
 /**
  *  A generic message resolver implementation
  *
- *  The GenericMessageResolver class is a generic implementation of the
- *  AnyMessageResolver interface.
+ *  The Lousson\Message\Generic\GenericMessageResolver class is a generic
+ *  implementation of the AnyMessageResolver interface.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message

@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\InvalidMessageError class definition
+ *  Lousson\Message\Builtin\BuiltinMessageStashTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,26 +40,66 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Error;
+namespace Lousson\Message\Builtin;
 
 /** Dependencies: */
-use Lousson\Message\AnyMessageException;
-use Lousson\Error\InvalidArgumentError;
+use Lousson\Message\AbstractMessageTest;
+use Lousson\Message\Builtin\BuiltinMessageStash;
+use DomainException;
 
 /**
- *  An exception type for invalid messages
+ *  A test case for the builtin message stash
  *
- *  The Lousson\Message\Error\InvalidMessageError exception is raised by
- *  the builtin and generic implementations of the message interfaces when
- *  they encounter and error caused by invalid arguments - e.g. malformed
- *  message/event URIs or message content.
+ *  The Lousson\Message\Builtin\BuiltinMessageStashTest class is a test
+ *  case for the builtin message stash implementation. For now, in only
+ *  tests the functionality which is not covered by other classes tests
+ *  anyway.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class InvalidMessageError
-    extends InvalidArgumentError
-    implements AnyMessageException
+final class BuiltinMessageStashTest extends AbstractMessageTest
 {
+    /**
+     *  Perform a basic smoke test
+     *
+     *  The smokeTest() method ensures the basic functionality of the
+     *  stash is working. This includes the callback mechanism used to
+     *  report remaining items stashed at destruction time.
+     *
+     *  @test
+     *
+     *  @throws \PHPUnit_Framework_Error_Warning
+     *          Raised in case the test is successful
+     *
+     *  @throws \PHPUnit_Framework_AssertionFailedError
+     *          Raised in case an assertion has failed
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    public function smokeTest()
+    {
+        $test = $this;
+        $callback = function(array $stash) use($test) {
+            $this->assertCount(1, $stash);
+            $test->assertSame($this, current($stash));
+            throw new DomainException;
+        };
+
+        $stash = new BuiltinMessageStash($callback);
+        $token = $stash->store("test");
+
+        $this->assertInternalType("string", $token);
+        $this->assertRegExp("/^[a-z0-9]+$/", $token);
+
+        $value = $stash->restore($token);
+        $this->assertEquals("test", $value);
+
+        $stash->store($this);
+        $this->setExpectedException("\PHPUnit_Framework_Error_Warning");
+
+        unset($stash);
+    }
 }
 

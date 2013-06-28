@@ -48,8 +48,8 @@ use PHPUnit_Framework_TestCase;
 /**
  *  An abstract test case for message providers
  *
- *  The AbstractMessageProviderTest class serves as the base for testing
- *  implementations of the AnyMessageProvider interface.
+ *  The Lousson\Message\AbstractMessageProviderTest class serves as the
+ *  base for testing implementations of the AnyMessageProvider interface.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
@@ -375,17 +375,13 @@ abstract class AbstractMessageProviderTest extends AbstractMessageTest
                 $providerClass, $index
             ));
 
-            $this->assertEquals(
-                $content, $message->getContent(), sprintf(
-                "The message returned by %s::fetch() is expected to ".
-                "have a particular content value in iteration %s",
-                $providerClass, $index
-            ));
+            $expected = array($content, $type);
+            $actual = array($message->getContent(), $message->getType());
 
             $this->assertEquals(
-                $type, $message->getType(), sprintf(
+                $expected, $actual, sprintf(
                 "The message returned by %s::fetch() is expected to ".
-                "have a particular type value in iteration %s",
+                "have particular content and type values in iteration %s",
                 $providerClass, $index
             ));
         }
@@ -942,8 +938,8 @@ abstract class AbstractMessageProviderTest extends AbstractMessageTest
             $providerClass, $flags, self::FETCH_CONFIRM
         );
 
-        if (3 <= $argumentCount &&
-                self::FETCH_CONFIRM & (int) $flags) {
+        if (3 <= $argumentCount && isset($message)
+                && self::FETCH_CONFIRM & (int) $flags) {
             $this->assertNotNull($newToken, $constraint);
             $token = $newToken;
         }

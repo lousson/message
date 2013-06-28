@@ -50,8 +50,8 @@ use Lousson\Message\AnyMessageProvider;
 /**
  *  An interface for message resolvers
  *
- *  The AnyMessageResolver interface declares the API any message resolver
- *  implementation must provide.
+ *  The Lousson\Message\AnyMessageResolver interface declares the API any
+ *  message resolver implementation must provide.
  *
  *  Message resolvers are used within dynamic message routes, in order to
  *  determine which handler/provider is addressed in the next hop. They're

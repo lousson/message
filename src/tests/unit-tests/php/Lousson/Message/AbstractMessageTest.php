@@ -49,9 +49,8 @@ use PHPUnit_Framework_TestCase;
 /**
  *  An abstract test case for message classes
  *
- *  The AbstractMessageTest class is as a base for test implementations
- *  for the interfaces in the Lousson\Message namespace. It provides a set
- *  of utilities that should ease the tasks of test authors.
+ *  The Lousson\Message\AbstractMessageTest class is as a base for test
+ *  implementations for the interfaces in the Lousson\Message namespace.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
@@ -210,6 +209,10 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
      */
     protected function getMessageMock($content = null, $type = null)
     {
+        if (!isset($type)) {
+            $type = "application/octet-stream";
+        }
+
         $methods = array("getContent", "getType");
         $message = $this->getMock(self::I_MESSAGE, $methods);
 
