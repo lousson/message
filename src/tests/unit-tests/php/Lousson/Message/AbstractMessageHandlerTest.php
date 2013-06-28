@@ -34,7 +34,7 @@
 /**
  *  Lousson\Message\AbstractMessageHandlerTest class definition
  *
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
@@ -43,187 +43,368 @@
 namespace Lousson\Message;
 
 /** Dependencies: */
-use Lousson\Message\Generic\GenericMessage;
 use PHPUnit_Framework_TestCase;
 
 /**
- *  An abstract test case for message factories
+ *  An abstract test case for message handlers
+ *
+ *  The Lousson\Message\AbstractMessageHandlerTest class serves as the
+ *  base for testing implementations of the AnyMessageHandler interface.
  *
  *  @since      lousson/Lousson_Message-0.1.0
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  */
 abstract class AbstractMessageHandlerTest extends AbstractMessageTest
 {
     /**
-     *  The default event URI used within the test cases
-     *
-     *  @var string
-     */
-    const DEFAULT_MESSAGE_URI = "urn:lousson:test";
-
-    /**
-     *  Obtain a message factory instance
+     *  Obtain a message handler instance
      *
      *  The getMessageHandler() method returns an instance of the message
-     *  factory class that is to be tested.
+     *  handler class that is to be tested.
      *
      *  @return \Lousson\Message\AnyMessageHandler
-     *          A message factory instance is returned on success
+     *          A message handler instance is returned on success
      */
     abstract public function getMessageHandler();
 
     /**
-     *  Obtain a message URI string
+     *  Aggregate process() parameters
      *
-     *  The getMessageURI() method returns a URI string that is used as
-     *  the default message or event URI within data providers and tests.
+     *  The aggregateProcessParameters() method returns a list of multiple
+     *  items, each of whose is an array of either two or three items:
      *
-     *  @return string
-     *          A message URI is returned on success
+     *- An arbitrary URI string (invalid if $useInvalidURIs is set)
+     *- Arbitrary message content, usually a byte sequence
+     *- A media type string, NULL (or absent)
+     *
+     *  @param  bool                $useInvalidURIs Use invalid URIs if set
+     *
+     *  @return array
+     *          A list of process() parameters is returned on success
      */
-    public function getMessageURI()
-    {
-        $class = get_class($this);
-        $constant = "$class::DEFAULT_MESSAGE_URI";
-        $uri = constant($constant);
-        return $uri;
-    }
+    public function aggregateProcessParameters(
+        $useInvalidURIs = false
+    ) {
+        $uriList = $useInvalidURIs
+            ? $this->provideInvalidURIs()
+            : $this->provideValidURIs();
 
-    /**
-     *
-     */
-    public function provideProcessParameters()
-    {
-        $uri = $this->getMessageURI();
-        $parms = $this->provideMessageParameters();
+        $uriList = array_map("array_pop", $uriList);
+        $messageDataTuples = $this->provideValidMessageData();
+        $parameters = array();
 
-        foreach ($parms as &$item) {
-            array_unshift($item, $uri);
+        foreach ($uriList as $uri) {
+            foreach ($messageDataTuples as $tuple) {
+                array_unshift($tuple, $uri);
+                $parameters[] = $tuple;
+            }
         }
 
-        return $parms;
+        return $parameters;
     }
 
     /**
+     *  Aggregate processMessage() parameters
      *
-     */
-    public function provideProcessInvalidParameters()
-    {
-        $parms[] = array(":foo", ":bar");
-        $parms[] = array("f\0\0", "b@rb@z");
-
-        return $parms;
-    }
-
-    /**
+     *  The aggregateProcessMessageParameters() method returns a list of
+     *  multiple items, each of whose is an array of two items:
      *
+     *- An arbitrary URI string (invalid if $useInvalidURIs is set)
+     *- An instance of the AnyMessage interface
+     *
+     *  @param  bool                $useInvalidURIs Use invalid URIs if set
+     *
+     *  @return array
+     *          A list of processMessage() parameters is returned on
+     *          success
      */
-    public function provideProcessMessageParameters()
-    {
-        $data = $this->provideProcessParameters();
-        $parms = array();
+    public function aggregateProcessMessageParameters(
+        $useInvalidURIs = false
+    ) {
+        $uriList = $useInvalidURIs
+            ? $this->provideInvalidURIs()
+            : $this->provideValidURIs();
 
-        foreach ($data as $item) {
-            $message = new GenericMessage($item[1], @$item[2]);
-            $parms[] = array($item[0], $message);
+        $uriList = array_map("array_pop", $uriList);
+        $messageList = $this->provideValidMessageInstances();
+        $messageList = array_map("array_pop", $messageList);
+        $parameters = array();
+
+        foreach ($uriList as $uri) {
+            foreach ($messageList as $message) {
+                $parameters[] = array($uri, $message);
+            }
         }
 
-        return $parms;
+        return $parameters;
     }
 
     /**
+     *  Provide valid process() parameters
+     *
+     *  The provideValidProcessParameters() method is a data provider
+     *  alias for aggregateProcessParameters() requesting valid URIs.
+     *
+     *  @return array
+     *          A list of process() parameters is returned on success
+     */
+    public function provideValidProcessParameters()
+    {
+        $parameters = $this->aggregateProcessParameters(false);
+        return $parameters;
+    }
+
+    /**
+     *  Provide invalid process() parameters
+     *
+     *  The provideInvalidProcessParameters() method is an alias for
+     *  aggregateProcessParameters() requesting invalid URIs.
+     *
+     *  @return array
+     *          A list of process() parameters is returned on success
+     */
+    public function provideInvalidProcessParameters()
+    {
+        $parameters = $this->aggregateProcessParameters(true);
+        return $parameters;
+    }
+
+    /**
+     *  Provide valid processMessage() parameters
+     *
+     *  The provideValidProcessMessageParameters() method is an alias
+     *  for aggregateProcessMessageParameters() requesting valid URIs.
+     *
+     *  @return array
+     *          A list of processMessage() parameters is returned on
+     *          success
+     */
+    public function provideValidProcessMessageParameters()
+    {
+        $parameters = $this->aggregateProcessMessageParameters(false);
+        return $parameters;
+    }
+
+    /**
+     *  Provide invalid processMessage() parameters
+     *
+     *  The provideInvalidProcessMessageParameters() method is an alias
+     *  for aggregateProcessMessageParameters() requesting invalid URIs.
+     *
+     *  @return array
+     *          A list of processMessage() parameters is returned on
+     *          success
+     */
+    public function provideInvalidProcessMessageParameters()
+    {
+        $parameters = $this->aggregateProcessMessageParameters(true);
+        return $parameters;
+    }
+
+    /**
+     *  Test the process() method
+     *
+     *  The testProcessMessageWithValidParameters() method is a test case
+     *  for the message handler's process() method that operates with valid
+     *  $uri, $content and $type parameters.
+     *
      *  @param  string              $uri        The message/event URI
-     *  @param  mixed               $data       The message data
-     *  @param  string              $type       The message data type
+     *  @param  string              $content    The message content
+     *  @param  string              $type       The message type, if any
      *
-     *  @dataProvider               provideProcessParameters
+     *  @dataProvider   provideValidProcessParameters
      *  @test
+     *
+     *  @throws \PHPUnit_Framework_AssertionFailedError
+     *          Raised in case an assertion has failed
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
      */
-    public function testProcess($uri, $data, $type = null)
-    {
+    public function testProcessWithValidParameters(
+        $uri,
+        $content,
+        $type = null
+    ) {
         $handler = $this->getMessageHandler();
-        $handlerClass = get_class($handler);
 
-        if (3 >= func_num_args()) {
-            $result = $handler->process($uri, $data, $type);
+        if (3 <= func_num_args()) {
+            $this->performProcess($handler, $uri, $content, $type);
         }
         else {
-            $result = $handler->process($uri, $data);
+            $this->performProcess($handler, $uri, $content);
         }
-
-        $this->assertNull(
-            $result,
-            "The $handlerClass::process() method must return NULL"
-        );
     }
 
     /**
-     *  @param  string              $uri        The message/event URI
-     *  @param  mixed               $data       The message data
-     *  @param  string              $type       The message data type
+     *  Test the process() method
      *
-     *  @dataProvider               provideProcessInvalidParameters
-     *  @expectedException          Lousson\Message\AnyMessageException
+     *  The testProcessWithInvalidParameters() method is a test case for
+     *  the message handler's process() method that operates with invalid
+     *  $uri, $content and/or $type parameters.
+     *
+     *  @param  string              $uri        The message/event URI
+     *  @param  string              $content    The message content
+     *  @param  string              $type       The message type, if any
+     *
+     *  @dataProvider   provideInvalidProcessParameters
      *  @test
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          Raised in case of success (see setExpectedException())
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
      */
-    public function testProcessInvalid($uri, $data, $type = null)
-    {
+    public function testProcessWithInvalidParameters(
+        $uri,
+        $content,
+        $type = null
+    ) {
         $handler = $this->getMessageHandler();
-        $handlerClass = get_class($handler);
+        $this->setExpectedException("Lousson\\Message\\AnyMessageException");
 
-        if (3 >= func_num_args()) {
-            $result = $handler->process($uri, $data, $type);
+        if (3 <= func_num_args()) {
+            $handler->process($uri, $content, $type);
         }
         else {
-            $result = $handler->process($uri, $data);
+            $handler->process($uri, $content);
+        }
+    }
+
+    /**
+     *  Test the processMessage() method
+     *
+     *  The testProcessMessageWithValidParameters() method is a test case
+     *  for the message handler's processMessage() method that operates
+     *  with a valid $uri and $message instance.
+     *
+     *  @param  string              $uri        The message/event URI
+     *  @param  AnyMessage          $message    The message to process
+     *
+     *  @dataProvider   provideValidProcessMessageParameters
+     *  @test
+     *
+     *  @throws \PHPUnit_Framework_AssertionFailedError
+     *          Raised in case an assertion has failed
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    public function testProcessMessageWithValidParameters(
+        $uri,
+        AnyMessage $message
+    ) {
+        $handler = $this->getMessageHandler();
+        $this->performProcessMessage($handler, $uri, $message);
+    }
+
+    /**
+     *  Test the processMessage() method
+     *
+     *  The testProcessWithInvalidParameters() method is a test case for
+     *  the message handler's processMessage() method that operates with
+     *  invalid $uri and/or $message parameters.
+     *
+     *  @param  string              $uri        The message/event URI
+     *  @param  AnyMessage          $message    The message to process
+     *
+     *  @dataProvider   provideInvalidProcessMessageParameters
+     *  @test
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          Raised in case of success (see setExpectedException())
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    public function testProcessMessageWithInvalidParameters(
+        $uri,
+        AnyMessage $message
+    ) {
+        $handler = $this->getMessageHandler();
+        $this->setExpectedException("Lousson\\Message\\AnyMessageException");
+        $handler->processMessage($uri, $message);
+    }
+
+    /**
+     *  Invoke the process() method
+     *
+     *  The performProcess() method is used internally to invoke the
+     *  process() method of the given $handler with the given $uri,
+     *  $content and $type.
+     *
+     *  @param  AnyMessageHandler   $handler    The message handler
+     *  @param  string              $uri        The message/event URI
+     *  @param  string              $content    The message content
+     *  @param  string              $type       The message type, if any
+     *
+     *  @throws \PHPUnit_Framework_AssertionFailedError
+     *          Raised in case an assertion has failed
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          Raised in case processing the message has failed
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    protected function performProcess(
+        AnyMessageHandler $handler,
+        $uri,
+        $content,
+        $type = null
+    ) {
+        $argumentCount = func_num_args() - 1;
+        $handlerClass = get_class($handler);
+
+        if (3 <= $argumentCount) {
+            $value = $handler->process($uri, $content, $type);
+        }
+        else {
+            $value = $handler->process($uri, $content);
         }
 
         $this->assertNull(
-            $result,
-            "The $handlerClass::process() method must return NULL"
-        );
+            $value, sprintf(
+            "The %s::process() method must not return a value ".
+            "(invoked with %d arguments)",
+            $handlerClass, $argumentCount
+        ));
     }
 
     /**
-     *  @param  string              $uri        The message/event URI
-     *  @param  mixed               $data       The message data
-     *  @param  string              $type       The message data type
+     *  Invoke the processMessage() method
      *
-     *  @dataProvider               provideProcessMessageParameters
-     *  @test
+     *  The performProcessMessage() method is used internally to invoke
+     *  the processMessage() method of the given $handler with the given
+     *  $uri and $message.
+     *
+     *  @param  AnyMessageHandler   $handler    The message handler
+     *  @param  string              $uri        The message/event URI
+     *  @param  AnyMessage          $message    The message to process
+     *
+     *  @throws \PHPUnit_Framework_AssertionFailedError
+     *          Raised in case an assertion has failed
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          Raised in case processing the message has failed
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
      */
-    public function testProcessMessage($uri, AnyMessage $message)
-    {
-        $handler = $this->getMessageHandler();
+    protected function performProcessMessage(
+        AnyMessageHandler $handler,
+        $uri,
+        AnyMessage $message
+    ) {
         $handlerClass = get_class($handler);
-        $result = $handler->processMessage($uri, $message);
+        $value = $handler->processMessage($uri, $message);
 
         $this->assertNull(
-            $result,
-            "The $handlerClass::processMessage() method must return NULL"
-        );
-    }
-
-    /**
-     *  Create a mock object for the tested class
-     *
-     *  The getHandlerMock() method is a utility that returns a mock of
-     *  the class of the handler returned by getMessageHandler(). Note
-     *  that one can pass multiple $method parameters, each of whose is
-     *  then configurable by the standard PHPUnit facilities.
-     *
-     *  @param  string              $method     The method(s) to mock
-     *
-     *  @return \Lousson\Message\AnyMessageHandler
-     *          A message handler mock is returned on success
-     */
-    protected function getHandlerMock($method)
-    {
-        $handler = $this->getMessageHandler();
-        $handlerClass = get_class($handler);
-        $methods = func_get_args();
-        $mock = $this->getMock($handlerClass, $methods);
-        return $mock;
+            $value, sprintf(
+            "The %s::processMessage() method must not return a value",
+            $handlerClass
+        ));
     }
 }
 

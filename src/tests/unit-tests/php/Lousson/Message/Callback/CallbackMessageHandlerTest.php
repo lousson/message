@@ -32,31 +32,33 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Generic\GenericMessageHandlerTest class definition
+ *  Lousson\Message\Callback\CallbackMessageHandlerTest class definition
  *
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Generic;
+namespace Lousson\Message\Callback;
+
+/** Interfaces: */
+use Lousson\Message\AnyMessageHandler;
+use Lousson\Message\AnyMessage;
+use Lousson\URI\AnyURI;
 
 /** Dependencies: */
 use Lousson\Message\AbstractMessageHandlerTest;
-use Lousson\Message\Generic\GenericMessageHandler;
-
-/** Exceptions: */
-use Lousson\Message\Error\RuntimeMessageError;
-use DomainException;
+use Lousson\Message\Callback\CallbackMessageHandler;
+use Psr\Log\NullLogger;
 
 /**
- *  A test case for the generic message handler class
+ *  A test case for the callback message handler
  *
  *  @since      lousson/Lousson_Message-0.1.0
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  */
-final class GenericMessageHandlerTest extends AbstractMessageHandlerTest
+final class CallbackMessageHandlerTest extends AbstractMessageHandlerTest
 {
     /**
      *  Obtain a message handler instance
@@ -64,86 +66,15 @@ final class GenericMessageHandlerTest extends AbstractMessageHandlerTest
      *  The getMessageHandler() method returns an instance of the message
      *  handler class that is to be tested.
      *
-     *  @return \Lousson\Message\Generic\GenericMessageHandler
+     *  @return \Lousson\Message\AnyMessageHandler
      *          A message handler instance is returned on success
      */
     public function getMessageHandler()
     {
-        $handler = $this->getMock(
-            "Lousson\\Message\\Generic\\GenericMessageHandler",
-            array("processMessage")
-        );
-
+        $callback = function(AnyURI $uri, AnyMessage $message) {};
+        $handler = new CallbackMessageHandler($callback);
         return $handler;
     }
-
-    /**
-     *  Test behavior in case of an URI factory error
-     *
-     *  The testGetURIFactoryError() method is a test case for scenarios
-     *  where the getURIFactory() method has been overridden and now either
-     *  raises a non-message exception itself or returns a factory that
-     *  does so.
-     *
-     *  @expectedException          Lousson\Message\AnyMessageException
-     *  @test
-     */
-    public function testGetURIFactoryError()
-    {
-        $handler = $this->getHandlerMock("getURIFactory");
-        $handler
-            ->expects($this->once())
-            ->method("getURIFactory")
-            ->will($this->throwException(new DomainException));
-
-        $uri = $this->getMessageURI();
-        $handler->process($uri, null, null);
-    }
-
-    /**
-     *  Test behavior in case of a valid message factory error
-     *
-     *  The testGetMessageFactoryValidError() method is a test case for
-     *  the scenario of an overridden getMessageFactory() method that
-     *  either raises a message exception itself or when the factory does
-     *  so.
-     *
-     *  @expectedException          Lousson\Message\AnyMessageException
-     *  @test
-     */
-    public function testGetMessageFactoryValidError()
-    {
-        $handler = $this->getHandlerMock("getMessageFactory");
-        $handler
-            ->expects($this->once())
-            ->method("getMessageFactory")
-            ->will($this->throwException(new RuntimeMessageError));
-
-        $uri = $this->getMessageURI();
-        $handler->process($uri, null, null);
-    }
-
-    /**
-     *  Test behavior in case of an invalid message factory error
-     *
-     *  The testGetMessageFactoryInvalidError() method is a test case
-     *  for the scenario of an overridden getMessageFactory() method that
-     *  either raises a non-message exception itself or returns a factory
-     *  that does so.
-     *
-     *  @expectedException          Lousson\Message\AnyMessageException
-     *  @test
-     */
-    public function testGetMessageFactoryInvalidError()
-    {
-        $handler = $this->getHandlerMock("getMessageFactory");
-        $handler
-            ->expects($this->once())
-            ->method("getMessageFactory")
-            ->will($this->throwException(new DomainException));
-
-        $uri = $this->getMessageURI();
-        $handler->process($uri, null, null);
-    }
 }
+
 

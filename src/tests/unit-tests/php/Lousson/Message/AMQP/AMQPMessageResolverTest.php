@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\InvalidMessageError class definition
+ *  Lousson\Message\AMQP\AMQPMessageResolverTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,26 +40,56 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Error;
+namespace Lousson\Message\AMQP;
 
 /** Dependencies: */
-use Lousson\Message\AnyMessageException;
-use Lousson\Error\InvalidArgumentError;
+use Lousson\Message\AbstractMessageResolverTest;
+use Lousson\Message\AMQP\AMQPMessageResolver;
 
 /**
- *  An exception type for invalid messages
- *
- *  The Lousson\Message\Error\InvalidMessageError exception is raised by
- *  the builtin and generic implementations of the message interfaces when
- *  they encounter and error caused by invalid arguments - e.g. malformed
- *  message/event URIs or message content.
+ *  A test case for the AMQP message provider
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class InvalidMessageError
-    extends InvalidArgumentError
-    implements AnyMessageException
+final class AMQPMessageResolverTest extends AbstractMessageResolverTest
 {
+    /**
+     *  Obtain a message resolver instance
+     *
+     *  The getMessageResolver() method is used to obtain the resolver
+     *  instance to use in the tests.
+     *
+     *  @return \Lousson\Message\AMQP\AMQPMessageResolver
+     *          A message resolver instance is returned on success
+     */
+    public function getMessageResolver()
+    {
+        $resolver = new AMQPMessageResolver();
+        return $resolver;
+    }
+
+    /**
+     *  Provide valid URIs
+     *
+     *  The provideValidURIs() method returns an array of one or more
+     *  items, each of whose is an array with one item: Either a valid
+     *  URI string or an instance of the AnyURI interface.
+     *
+     *  Authors of derived classes should reimplement this method if
+     *  their test subject operates with a particular implementation
+     *  that supports e.g. specific schemes only.
+     *
+     *  @return array
+     *          A list of URI parameters is returned on success
+     */
+    public function provideValidURIs()
+    {
+        $uri = "amqp://guest:guest@localhost:5672/?routing-key=test-route";
+        $uri .= "&exchange-name=test-exchange&queue-name=test-queue";
+
+        $uris[][] = $uri;
+        return $uris;
+    }
 }
 

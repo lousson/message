@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Record\RecordMessageProvider interface definition
+ *  Lousson\Message\AMQP\Intern\AMQPException interface definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,46 +40,22 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Record;
+namespace Lousson\Message\AMQP\Intern;
 
 /** Interfaces: */
-use Lousson\Message\AnyMessageProvider;
+use Lousson\Message\AnyMessageException;
 
 /**
- *  An interface for record message providers
+ *  An interface for AMQP exceptions
  *
- *  The RecordMessageProvider interface extends the AnyMessageProvider
- *  API by the fetchRecord() method. Thus; it specializes in fetching data
- *  arrays rather than plain/binary messages.
+ *  The Lousson\Message\AMQP\Intern\AMQPException interface is implemented
+ *  by any exception type raised within the classes in the AMQP namespace
+ *  of the Lousson\Message implementation.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-interface RecordMessageProvider extends AnyMessageProvider
+interface AMQPException extends AnyMessageException
 {
-    /**
-     *  Retrieve message records
-     *
-     *  The fetchRecord() method is used to obtain the next message record
-     *  associated with the given event $uri. The $flags parameter can be
-     *  used to request special behavior:
-     *
-     *- AnyMessageProvider::FETCH_CONFIRM
-     *  Populate the $token reference for acknowledge() or discard()
-     *
-     *  @param  string              $uri        The event URI
-     *  @param  int                 $flags      The option bitmask
-     *  @param  mixed               $token      The delivery token
-     *
-     *  @return array
-     *          A data record array is returned on success, or NULL in
-     *          case no more messages are available for the given $uri
-     *
-     *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case retrieving the next message has failed
-     */
-    public function fetchRecord(
-        $uri, $flags = self::FETCH_DEFAULT, &$token = null
-    );
 }
 

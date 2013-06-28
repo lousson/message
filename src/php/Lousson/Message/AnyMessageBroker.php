@@ -42,17 +42,19 @@
  */
 namespace Lousson\Message;
 
-/** Dependencies: */
+/** Interfaces: */
 use Lousson\Message\AnyMessageHandler;
 use Lousson\Message\AnyMessageProvider;
 
 /**
  *  An interface for message brokers
  *
- *  The AnyMessageBroker interface declares the API that is to be provided
- *  by any message broker implementation. That is, bascially, a combination
- *  of the AnyMessageHandler and AnyMessageProvider interfaces, although
- *  it is not defined whether both are implemented in the same context.
+ *  The Lousson\Message\AnyMessageBroker interface declares the API that
+ *  is to be provided by any message broker implementation.
+ *
+ *  That is, bascially, a combination of the message handler and provider
+ *  interfaces, although it is not defined whether both are implemented in
+ *  the same context.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message

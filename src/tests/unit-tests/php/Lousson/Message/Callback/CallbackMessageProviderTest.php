@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\InvalidMessageError class definition
+ *  Lousson\Message\Callback\CallbackMessageProviderTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,26 +40,78 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Error;
+namespace Lousson\Message\Callback;
+
+/** Interfaces: */
+use Lousson\Message\AnyMessageProvider;
 
 /** Dependencies: */
-use Lousson\Message\AnyMessageException;
-use Lousson\Error\InvalidArgumentError;
+use Lousson\Message\AbstractMessageProviderTest;
+use Lousson\Message\Callback\CallbackMessageProvider;
+use Psr\Log\NullLogger;
 
 /**
- *  An exception type for invalid messages
- *
- *  The Lousson\Message\Error\InvalidMessageError exception is raised by
- *  the builtin and generic implementations of the message interfaces when
- *  they encounter and error caused by invalid arguments - e.g. malformed
- *  message/event URIs or message content.
+ *  A test case for the callback message provider
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class InvalidMessageError
-    extends InvalidArgumentError
-    implements AnyMessageException
+final class CallbackMessageProviderTest extends AbstractMessageProviderTest
 {
+    /**
+     *  Obtain a message provider instance
+     *
+     *  The getMessageProvider() method returns the message provider
+     *  instance the test case shall operate with.
+     *
+     *  @param  string              $uri        The test message URI
+     *  @param  array               $expected   The test messages
+     *
+     *  @return \Lousson\Message\Callback\CallbackMessageProvider
+     *          A message provider instance is returned on success
+     */
+    public function getMessageProvider($uri, array $expected)
+    {
+        $callback = function($uri) use(&$expected) {
+            $message = array_shift($expected);
+            return $message;
+        };
+
+        $provider = new CallbackMessageProvider($callback);
+        $provider->setLogger(new NullLogger());
+
+        return $provider;
+    }
+
+    /**
+     *  Test the destructor
+     *
+     *  The testDestructor() method verifies that the cleanup in the
+     *  CallbackMessageProvider's destructor works as expected.
+     *
+     *  @param  array               $data       The test messages
+     *  @param  string              $uri        The message/event URI
+     *  @param  int                 $flags      The fetch() flags
+     *
+     *  @dataProvider               provideValidFetchParameters
+     *  @test
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    public function testDestructor(
+        array $data,
+        $uri,
+        $flags = self::FETCH_DEFAULT
+    ) {
+        $flags |= self::FETCH_CONFIRM;
+        $provider = $this->getMessageProvider($uri, $data);
+        $index = 0;
+
+        while($provider->fetch($uri, $flags, $token));
+        $provider->discard($token, self::DISC_REQUEUE);
+        $provider->__destruct();
+        unset($provider);
+    }
 }
 

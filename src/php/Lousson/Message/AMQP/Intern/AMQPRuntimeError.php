@@ -32,33 +32,33 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Record\RecordMessageBroker interface definition
+ *  Lousson\Message\AMQP\Intern\AMQPRuntimeError class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
- *  @author     Mathias J. Hennig <mhennig at quirkies.org>
+ *  @author     Benjamin Schneider <benjamin.schneider.de at gmail.com>
  *  @filesource
  */
-namespace Lousson\Message\Record;
+namespace Lousson\Message\AMQP\Intern;
 
-/** Interfaces: */
-use Lousson\Message\AnyMessageBroker;
-use Lousson\Message\Record\RecordMessageHandler;
-use Lousson\Message\Record\RecordMessageProvider;
+/** Dependencies: */
+use Lousson\Error\RuntimeError;
+use Lousson\Message\AMQP\Intern\AMQPException;
 
 /**
- *  An interface for record message brokers
+ *  An exception type for AMQP runtime errors
  *
- *  The RecordMessageBroker interface extends the AnyMessageBroker API by
- *  the methods from the RecordMessageHandler and RecordMessageProvider
- *  interfaces.
+ *  The Lousson\Message\AMQP\AMQPRuntimeError exception is raised by the
+ *  classes in the Lousson\Message\AMQP namespace whenever they encounter
+ *  an internal runtime error.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-interface RecordMessageBroker
-    extends AnyMessageBroker, RecordMessageHandler, RecordMessageProvider
+class AMQPRuntimeError
+    extends RuntimeError
+    implements AMQPException
 {
 }
 

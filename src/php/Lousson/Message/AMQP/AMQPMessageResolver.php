@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Builtin\BuiltinMessageResolver class definition
+ *  Lousson\Message\AMQP\AMQPMessageResolver class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,29 +40,74 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Builtin;
+namespace Lousson\Message\AMQP;
 
 /** Interfaces: */
 use Lousson\URI\AnyURI;
 
 /** Dependencies: */
 use Lousson\Message\AbstractMessageResolver;
+use Lousson\Message\AMQP\Intern\AMQPFactory;
+use AMQPChannel;
+use AMQPConnection;
+use AMQPExchange;
+use AMQPQueue;
 
 /**
- *  The default message resolver implementation
+ *  An AMQP message resolver implementation
  *
- *  The Lousson\Message\Builtin\BuiltinMessageResolver class is the default
- *  implementation of the AnyMessageResolver interface.
+ *  The Lousson\Message\AMQP\AMQPMessageResolver class is an implementation
+ *  of the AnyMessageResolver interface that specializes in AMQP resources.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class BuiltinMessageResolver extends AbstractMessageResolver
+class AMQPMessageResolver extends AbstractMessageResolver
 {
     /**
-     *  A hook for resolving handlers
+     *  The regular expression to extract the routing key from AMQP URLs
      *
-     *  The lookupHandler() method is used internally to resolve the
+     *  @var string
+     */
+    const ROUTE_REGEX = "/^[^?]+\\?([^#]*&)?routing-key=([^&#]*)/";
+
+    /**
+     *  The index of the routing key in the resultset of the ROUTE_REGEX
+     *
+     *  @var int
+     */
+    const ROUTE_INDEX = 2;
+
+    /**
+     *  Create a resolver instance
+     *
+     *  The constructor allows the caller to provide an URI resolver for
+     *  the new instance. Note that this parameter is optional: If it is
+     *  absent, each URI will resolve to itself.
+     *  The also optional $factory parameter can be used to provide an
+     *  alternative URI factory beside the builtin one.
+     *
+     *  @param  AnyURIResolver      $resolver       The URI resolver
+     *  @param  AnyURIFactory       $factory        The URI factory
+     */
+    public function __construct(
+        AnyURIResolver $uriResolver = null,
+        AnyURIFactory $uriFactory = null,
+        AMQPFactory $amqpFactory = null
+    ) {
+        parent::__construct($uriResolver, $uriFactory);
+
+        if (null === $amqpFactory) {
+            $amqpFactory = new AMQPFactory();
+        }
+
+        $this->amqp = $amqpFactory;
+    }
+
+    /**
+     *  Lookup message handlers
+     *
+     *  The lookupHandler() method is used to resolve the message
      *  handler associated with the given $uri's prefix. Classes that
      *  extend the GenericMessageResolver may override this method, in
      *  order to apply some custom logic.
@@ -84,13 +129,32 @@ class BuiltinMessageResolver extends AbstractMessageResolver
      */
     public function lookupHandler(AnyURI $uri)
     {
-        return null;
+        $lexical = (string) $uri->getLexical();
+        $routingKey = null;
+
+        if (preg_match(self::ROUTE_REGEX, $lexical, $matches)) {
+            $routingKey = $matches[self::ROUTE_INDEX];
+        }
+
+        if (!isset($this->handlers[$lexical][$routingKey])) {
+
+            $scheme = (string) $uri->getPart(AnyURI::PART_SCHEME);
+
+            if (0 === strcasecmp("amqp", $scheme)) {
+                $exchange = $this->amqp->createExchange($uri);
+                $instance = new AMQPMessageHandler($exchange, $routingKey);
+                $this->handlers[$lexical][$routingKey] = $instance;
+            }
+        }
+
+        $handler = $this->handlers[$lexical][$routingKey];
+        return $handler;
     }
 
     /**
-     *  A hook for resolving providers
+     *  Lookup message providers
      *
-     *  The lookupHandler() method is used internally to resolve the
+     *  The lookupHandler() method is used to resolve the message
      *  provider associated with the given $uri's prefix. Classes that
      *  extend the GenericMessageResolver may override this method, in
      *  order to apply some custom logic.
@@ -112,7 +176,42 @@ class BuiltinMessageResolver extends AbstractMessageResolver
      */
     public function lookupProvider(AnyURI $uri)
     {
-        return null;
+        $lexical = (string) $uri->getLexical();
+
+        if (!isset($this->providers[$lexical])) {
+
+            $scheme = (string) $uri->getPart(AnyURI::PART_SCHEME);
+
+            if (0 === strcasecmp("amqp", $scheme)) {
+                $queue = $this->amqp->createQueue($uri);
+                $instance = new AMQPMessageProvider($queue);
+                $this->providers[$lexical] = $instance;
+            }
+        }
+
+        $provider = $this->providers[$lexical];
+        return $provider;
     }
+
+    /**
+     *  A register for AMQPMessageHandler instances
+     *
+     *  @var array
+     */
+    private $handlers = array();
+
+    /**
+     *  A register for AMQPMessageProvider instances
+     *
+     *  @var array
+     */
+    private $providers = array();
+
+    /**
+     *  An AMQP factory instance
+     *
+     *  @var \Lousson\Message\AMQP\Intern\AMQPFactory
+     */
+    private $amqp;
 }
 

@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\InvalidMessageError class definition
+ *  Lousson\Message\AbstractMessageExceptionTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,26 +40,35 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Error;
+namespace Lousson\Message;
 
 /** Dependencies: */
-use Lousson\Message\AnyMessageException;
-use Lousson\Error\InvalidArgumentError;
+use Lousson\AbstractExceptionTest;
 
 /**
- *  An exception type for invalid messages
- *
- *  The Lousson\Message\Error\InvalidMessageError exception is raised by
- *  the builtin and generic implementations of the message interfaces when
- *  they encounter and error caused by invalid arguments - e.g. malformed
- *  message/event URIs or message content.
+ *  A test case for the AMQPArgumentError class
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class InvalidMessageError
-    extends InvalidArgumentError
-    implements AnyMessageException
+abstract class AbstractMessageExceptionTest extends AbstractExceptionTest
 {
+    /**
+     *  Obtain a list of implemented interfaces
+     *
+     *  The getExpectedInterfaces() method returns a list of zero or more
+     *  interface names, each referring to an interface the exception that
+     *  is returned by the getException() method is expected to implement.
+     *
+     *  @return array
+     *          A list of interface names is returned on success
+     */
+    public function getExpectedInterfaces()
+    {
+        $interfaces = parent::getExpectedInterfaces();
+        $interfaces[] = "Lousson\\Message\\AnyMessageException";
+
+        return $interfaces;
+    }
 }
 

@@ -45,8 +45,8 @@ namespace Lousson\Message;
 /**
  *  An interface for messages
  *
- *  The AnyMessage interface declares the API that is to be provided by
- *  any message entity.
+ *  The Lousson\Message\AnyMessage interface declares the API that is to
+ *  be provided by any message entity.
  *
  *  Message entities are objects that store the basic message data. That
  *  is the message content as a byte sequence, it's length and type - at
@@ -57,6 +57,13 @@ namespace Lousson\Message;
  */
 interface AnyMessage
 {
+    /**
+     *  The default message media type
+     *
+     *  @var string
+     */
+    const DEFAULT_TYPE = "application/octet-stream";
+
     /**
      *  Obtain the message's content
      *

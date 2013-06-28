@@ -32,58 +32,61 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\AnyMessageHandler interface definition
+ *  Lousson\Message\AMQP\AMQPMessageHandler class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
- *  @author     Mathias J. Hennig <mhennig at quirkies.org>
+ *  @author     Benjamin Schneider <benjamin.schneider.de at gmail.com>
  *  @filesource
  */
-namespace Lousson\Message;
+namespace Lousson\Message\AMQP;
 
 /** Interfaces: */
+use Lousson\Message\AnyMessageFactory;
 use Lousson\Message\AnyMessage;
+use Lousson\URI\AnyURIFactory;
+use Lousson\URI\AnyURI;
+
+/** Dependencies: */
+use AMQPExchange;
+use Lousson\Message\AbstractMessageHandler;
+
+/** Exceptions: */
+use Lousson\Message\Error\RuntimeMessageError;
 
 /**
- *  An interface for message handlers
+ *  An AMQP message handler implementation
  *
- *  The Lousson\Message\AnyMessageHandler interface declares the API that
- *  must be provided by any message handler implementation.
- *
- *  These handlers are used to process messages of any kind, irregardless
- *  of the implementation details. One could, for example, write the data
- *  of the message into a file, queue it for later processing, re-route it
- *  to a set of other handlers, send them via e-mail or else.
+ *  The Lousson\Message\AMQP\AMQPMessageHandler is a message handler
+ *  implementation based on AMQP exchanges.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-interface AnyMessageHandler
+class AMQPMessageHandler extends AbstractMessageHandler
 {
     /**
-     *  Process message data
+     *  Create a handler instance
      *
-     *  The process() method is used to invoke the logic that processes
-     *  the message $data, a byte sequence of the given mime- or media-
-     *  $type, according to the event $uri provided. If the $type is not
-     *  provided, implementations should assume "application/octet-stream"
-     *  or may attempt to detect it.
+     *  The constructor allows the provisioning of custom message and URI
+     *  factory instances for the provider to operate on - instead of the
+     *  builtin default.
      *
-     *  @param  string              $uri        The event URI
-     *  @param  string              $data       The message data
-     *  @param  string              $type       The media type
-     *
-     *  @throws \Lousson\Message\AnyMessageException
-     *          All exceptions raised implement this interface
-     *
-     *  @throws \InvalidArgumentException
-     *          Raised in case an argument is considered invalid
-     *
-     *  @throws \RuntimeException
-     *          Raised in case an internal error occurred
+     *  @param  AnyMessageFactory   $messageFactory The message factory
+     *  @param  AnyURIFactory       $uriFactory     The URI factory
      */
-    public function process($uri, $data, $type = null);
+    public function __construct(
+        AMQPExchange $exchange,
+        $routingKey,
+        AnyMessageFactory $messageFactory = null,
+        AnyURIFactory $uriFactory = null
+    ) {
+        parent::__construct($messageFactory, $uriFactory);
+
+        $this->exchange = $exchange;
+        $this->routingKey = $routingKey;
+    }
 
     /**
      *  Process message instances
@@ -103,6 +106,62 @@ interface AnyMessageHandler
      *  @throws \RuntimeException
      *          Raised in case an internal error occurred
      */
-    public function processMessage($uri, AnyMessage $message);
-}
+    public function processMessage($uri, AnyMessage $message)
+    {
+        $uri = $this->fetchURI($uri);
+        $attributes = $this->getAttributes($uri, $message);
+        $content = $message->getContent();
 
+        try {
+            $status = $this->exchange->publish(
+                $content,
+                $this->routingKey,
+                AMQP_NOPARAM,
+                $attributes
+            );
+        }
+        catch (\AMQPException $error) {
+            $class = get_class($error);
+            $notice = "Could not process AMQP message: Caught $error";
+            $code = RuntimeMessageError::E_UNKNOWN;
+            throw new RuntimeMessageError($notice, $code, $error);
+        }
+    }
+
+    /**
+     *  Create message attributes
+     *
+     *  The getAttributes() method is used internally to prepare the array
+     *  of attributes that is passed to the AMQPExchange::publish() method
+     *  as 4th parameter.
+     *
+     *  @param  AnyURI              $uri        The message/event URI
+     *  @param  AnyMessage          $message    The message itself
+     *
+     *  @return array
+     *          An array of message attributes is returned on success
+     */
+    protected function getAttributes(AnyURI $uri, AnyMessage $message)
+    {
+        $attributes = array(
+            "content_type" => (string) $message->getType(),
+            "x_resource_id" => (string) $uri->getLexical(),
+        );
+
+        return $attributes;
+    }
+
+    /**
+     *  The AMQP exchange to operate on
+     *
+     *  @var \AMQPExchange
+     */
+    private $exchange;
+
+    /**
+     *  The AMQP routing key for publishing messages
+     *
+     *  @var string
+     */
+    private $routingKey;
+}

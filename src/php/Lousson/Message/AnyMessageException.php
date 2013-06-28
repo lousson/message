@@ -42,15 +42,15 @@
  */
 namespace Lousson\Message;
 
-/** Dependencies: */
+/** Interfaces: */
 use Lousson\AnyException;
 
 /**
  *  An interface for message exceptions
  *
- *  The AnyMessageException interface must be implemented by any exception
- *  raised within the Lousson\Message namespace. Also, many of the methods
- *  declared in this namespace may raise exceptions of this type.
+ *  The Lousson\Message\AnyMessageException interface must be implemented
+ *  by any exception raised within the Lousson\Message namespace, as well
+ *  as those raised by implementations of the methods declared here.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
