@@ -217,6 +217,7 @@ class AMQPFactory
      *  relies on the $connection instance provided.
      *
      *  @param  string              $uri        The connection URI
+     *  @param  AMQPConnection      $connection The connection, if any
      *
      *  @return \AMQPConnection
      *          An AMQP connection instance is returned on success

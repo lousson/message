@@ -69,10 +69,12 @@ class AMQPMessageHandler extends AbstractMessageHandler
     /**
      *  Create a handler instance
      *
-     *  The constructor allows the provisioning of custom message and URI
-     *  factory instances for the provider to operate on - instead of the
-     *  builtin default.
+     *  Beside the required AMQP exchange and routing key, the constructor
+     *  allows the provisioning of custom message and URI factory instances
+     *  for the provider to operate on - instead of the builtin defaults.
      *
+     *  @param  AMQPExchange        $exchange       The AMQP exchange
+     *  @param  string              $routingKey     The AMQP routing key
      *  @param  AnyMessageFactory   $messageFactory The message factory
      *  @param  AnyURIFactory       $uriFactory     The URI factory
      */

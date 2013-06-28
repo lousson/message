@@ -265,7 +265,7 @@ class AMQPMessageProvider
      *  The fetchMessage() method is used internally to aggregate a message
      *  instance from the data provided by an AMQP $envelope.
      *
-     *  @param  AMQPException       $envelope       The AMQP envelope
+     *  @param  AMQPEnvelope        $envelope   The AMQP envelope
      *
      *  @return \Lousson\Message\Generic\GenericMessage
      *          A message instance is returned on success

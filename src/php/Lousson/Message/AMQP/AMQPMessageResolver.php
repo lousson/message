@@ -84,11 +84,12 @@ class AMQPMessageResolver extends AbstractMessageResolver
      *  The constructor allows the caller to provide an URI resolver for
      *  the new instance. Note that this parameter is optional: If it is
      *  absent, each URI will resolve to itself.
-     *  The also optional $factory parameter can be used to provide an
-     *  alternative URI factory beside the builtin one.
+     *  The also optional factory parameters can be used to provide custom
+     *  alternatives to the otherwise used builtin factories.
      *
-     *  @param  AnyURIResolver      $resolver       The URI resolver
-     *  @param  AnyURIFactory       $factory        The URI factory
+     *  @param  AnyURIResolver      $uriResolver    The URI resolver
+     *  @param  AnyURIFactory       $uriFactory     The URI factory
+     *  @param  AMQPFactory         $amqpFactory    The AMQP factory
      */
     public function __construct(
         AnyURIResolver $uriResolver = null,
