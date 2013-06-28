@@ -99,6 +99,7 @@ class AMQPMessageHandler extends GenericMessageHandler
     {
         $uri = $this->fetchURI($uri);
 
+
         try {
             $amqpURI = $this->amqpURIParser->parseAnyURI($uri);
         }
