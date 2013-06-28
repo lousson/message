@@ -43,17 +43,16 @@
 namespace Lousson\Message\Builtin;
 
 /** Interfaces: */
-use Lousson\Message\AnyMessageException;
 use Lousson\Message\AnyMessageFactory;
 
 /** Dependencies: */
 use Lousson\Message\Generic\GenericMessage;
 
 /**
- *  A generic message implementation
+ *  The default message factory implementation
  *
- *  The BuiltinMessageFactory class is a generic implementation of the AnyMessage
- *  interface.
+ *  The Lousson\Message\Builtin\BuiltinMessageFactory class is the default
+ *  implementation of the AnyMessageFactory interface.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
@@ -64,21 +63,25 @@ class BuiltinMessageFactory implements AnyMessageFactory
      *  Create a message instance
      *
      *  The getMessage() method is used to create a message instance to
-     *  represent the provided $content. The optional $type parameter can
-     *  be used to specify the (internet-) media-type of the content.
+     *  represent the provided $content; an arbitrary byte sequence.
+     *  The optional $type parameter can be used to specify the (internet-)
+     *  media-type of the content.
      *
-     *  @param  mixed               $content    The message data
+     *  @param  string              $content    The message data
      *  @param  string              $type       The message media type
      *
      *  @return \Lousson\Message\AnyMessage
      *          A message instance is returned on success
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the message could not get created
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case an argument is considered invalid
      */
-    public function getMessage($data, $type = null)
+    public function getMessage($content, $type = self::DEFAULT_TYPE)
     {
-        $message = new GenericMessage($data, $type);
+        $message = new GenericMessage($content, $type);
         return $message;
     }
 }

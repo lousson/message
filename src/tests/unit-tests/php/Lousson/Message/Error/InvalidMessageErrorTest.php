@@ -34,7 +34,7 @@
 /**
  *  Lousson\Message\Error\InvalidMessageErrorTest class definition
  *
- *  @package    org.lousson.exception
+ *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
@@ -50,7 +50,7 @@ use ReflectionClass;
  *  A test case for the InvalidMessageError class
  *
  *  @since      lousson/Lousson_Message-0.1.0
- *  @package    org.lousson.exception
+ *  @package    org.lousson.message
  */
 class InvalidMessageErrorTest extends AbstractExceptionTest
 {

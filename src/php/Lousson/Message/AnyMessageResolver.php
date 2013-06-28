@@ -50,8 +50,8 @@ use Lousson\Message\AnyMessageProvider;
 /**
  *  An interface for message resolvers
  *
- *  The AnyMessageResolver interface declares the API any message resolver
- *  implementation must provide.
+ *  The Lousson\Message\AnyMessageResolver interface declares the API any
+ *  message resolver implementation must provide.
  *
  *  Message resolvers are used within dynamic message routes, in order to
  *  determine which handler/provider is addressed in the next hop. They're
@@ -79,7 +79,13 @@ interface AnyMessageResolver
      *          NULL otherwise
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the given $uri is malformed
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     public function resolveHandler(&$uri);
 
@@ -99,7 +105,13 @@ interface AnyMessageResolver
      *          NULL otherwise
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the given $uri is malformed
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     public function resolveProvider(&$uri);
 }

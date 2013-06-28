@@ -34,7 +34,7 @@
 /**
  *  Lousson\Message\AbstractMessageTest class definition
  *
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
  *  @license    http://opensource.org/licenses/bsd-license.php New BSD License
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
@@ -43,30 +43,80 @@
 namespace Lousson\Message;
 
 /** Dependencies: */
+use Lousson\URI\Generic\GenericURI;
 use PHPUnit_Framework_TestCase;
 
 /**
  *  An abstract test case for message classes
  *
+ *  The Lousson\Message\AbstractMessageTest class is as a base for test
+ *  implementations for the interfaces in the Lousson\Message namespace.
+ *
  *  @since      lousson/Lousson_Message-0.1.0
- *  @package    org.lousson.record
+ *  @package    org.lousson.message
  *  @link       http://www.phpunit.de/manual/current/en/
  */
 abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
 {
     /**
+     *  The fully qualified name of the message interface
+     *
+     *  @var string
+     */
+    const I_MESSAGE = "Lousson\\Message\\AnyMessage";
+
+    /**
+     *  The fully qualified name of the message resolver interface
+     *
+     *  @var string
+     */
+    const I_RESOLVER = "Lousson\\Message\\AnyMessageResolver";
+
+    /**
+     *  The fully qualified name of the message handler interface
+     *
+     *  @var string
+     */
+    const I_HANDLER = "Lousson\\Message\\AnyMessageHandler";
+
+    /**
+     *  The fully qualified name of the message provider interface
+     *
+     *  @var string
+     */
+    const I_PROVIDER = "Lousson\\Message\\AnyMessageProvider";
+
+    /**
+     *  The fully qualified name of the message broker interface
+     *
+     *  @var string
+     */
+    const I_BROKER = "Lousson\\Message\\AnyMessageBroker";
+
+    /**
+     *  The fully qualified name of the message exception interface
+     *
+     *  @var string
+     */
+    const I_EXCEPTION = "Lousson\\Message\\AnyMessageException";
+
+    /**
      *  Provide message parameters
      *
-     *  The provideMessageParameters() method returns an array of one
+     *  The provideValidMessageData() method returns an array of one
      *  or more items, each of whose is an array of either one or two:
      *
-     *- Message data, usually a byte sequence, for getMessage()
-     *- A media type string, for getMessage()
+     *- Message data, usually a byte sequence
+     *- A media type string
+     *
+     *  Authors of derived classes should reimplement this method if
+     *  their test subject operates with a particular message dialect
+     *  rather than arbitrary binary data.
      *
      *  @return array
      *          A list of message parameters is returned on success
      */
-    public function provideMessageParameters()
+    public function provideValidMessageData()
     {
         $data[][] = "foobar";
         $data[][] = "f\0\0bar";
@@ -78,6 +128,105 @@ abstract class AbstractMessageTest extends PHPUnit_Framework_TestCase
         $data[] = array(null, null);
 
         return $data;
+    }
+
+    /**
+     *  Provide message instances
+     *
+     *  The provideValidMessageInstances() method returns an array of
+     *  multiple items, each of whose is an array with one item:
+     *  An instance of the AnyMessage interface.
+     *
+     *  @return array
+     *          A list of message instances is returned on success
+     */
+    public function provideValidMessageInstances()
+    {
+        $data = $this->provideValidMessageData();
+        $instances = array();
+
+        foreach ($data as $item) {
+            $message = $this->getMessageMock($item[0], @$item[1]);
+            $instances[][] = $message;
+        }
+
+        return $instances;
+    }
+
+    /**
+     *  Provide valid URIs
+     *
+     *  The provideValidURIs() method returns an array of one or more
+     *  items, each of whose is an array with one item: Either a valid
+     *  URI string or an instance of the AnyURI interface.
+     *
+     *  Authors of derived classes should reimplement this method if
+     *  their test subject operates with a particular implementation
+     *  that supports e.g. specific schemes only.
+     *
+     *  @return array
+     *          A list of URI parameters is returned on success
+     */
+    public function provideValidURIs()
+    {
+        $uris[][] = "http://example.com/";
+        $uris[][] = "urn:lousson:test";
+        $uris[][] = GenericURI::create("urn:lousson:test");
+
+        return $uris;
+    }
+
+    /**
+     *  Provide invalid URIs
+     *
+     *  The provideValidURIs() method returns an array of one or more
+     *  items, each of whose is an array with one item: An invalid URI
+     *  string.
+     *
+     *  @return array
+     *          A list of invalid URI parameters is returned on success
+     */
+    public function provideInvalidURIs()
+    {
+        $uris[][] = ":alpha";
+        $uris[][] = "?key=value";
+
+        return $uris;
+    }
+
+    /**
+     *  Create an AnyMessage mock
+     *
+     *  The getMessageMock() method returns a mock of the AnyMessage
+     *  interface, one whose getContent() and getType() methods return
+     *  the $content and $type provided.
+     *
+     *  @param  string              $content    The message content
+     *  @param  string              $type       The message type
+     *
+     *  @return \Lousson\Message\AnyMessage
+     *          A message mock instance is returned on success
+     */
+    protected function getMessageMock($content = null, $type = null)
+    {
+        if (!isset($type)) {
+            $type = "application/octet-stream";
+        }
+
+        $methods = array("getContent", "getType");
+        $message = $this->getMock(self::I_MESSAGE, $methods);
+
+        $message
+            ->expects($this->any())
+            ->method("getContent")
+            ->will($this->returnValue($content));
+
+        $message
+            ->expects($this->any())
+            ->method("getType")
+            ->will($this->returnValue($type));
+
+        return $message;
     }
 }
 

@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Record\RecordMessageHandler interface definition
+ *  Lousson\Message\AMQP\Intern\AMQPArgumentError class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,35 +40,25 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Record;
+namespace Lousson\Message\AMQP\Intern;
 
-/** Interfaces: */
-use Lousson\Message\AnyMessageHandler;
+/** Dependencies: */
+use Lousson\Error\InvalidArgumentError;
+use Lousson\Message\AMQP\Intern\AMQPException;
 
 /**
- *  An interface for record message handlers
+ *  An exception type for AMQP argument errors
  *
- *  The RecordMessageHandler interface extends the AnyMessageHandler API
- *  by the processRecord() method. Thus; it specializes in processing data
- *  arrays rather than plain/binary messages.
+ *  The Lousson\Message\AMQP\AMQPArgumentError exception is raised by the
+ *  classes in the Lousson\Message\AMQP namespace whenever they encounter
+ *  an error caused by an invalid argument.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-interface RecordMessageHandler extends AnyMessageHandler
+class AMQPArgumentError
+    extends InvalidArgumentError
+    implements AMQPException
 {
-    /**
-     *  Process message records
-     *
-     *  The processRecord() method is used to invoke the logic to process
-     *  the data $record provided, according to the given event $uri.
-     *
-     *  @param  string              $uri        The message URI
-     *  @param  array               $record     The message record
-     *
-     *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case processing the message has failed
-     */
-    public function processRecord($uri, array $record);
 }
 

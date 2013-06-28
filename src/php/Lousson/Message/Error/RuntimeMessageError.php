@@ -49,9 +49,9 @@ use Lousson\Error\RuntimeError;
 /**
  *  An exception type for runtime errors
  *
- *  The RuntimeMessageError is an exception type raised by the builtin and
- *  generic implementations of the message interfaces in case of any errors
- *  that are not caused by the caller.
+ *  The Lousson\Message\Error\RuntimeMessageError exception is raised by
+ *  the builtin and generic implementations of the message interfaces in
+ *  case they encounter an error that is not caused by the caller.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message

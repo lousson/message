@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Generic\GenericMessageHandler interface definition
+ *  Lousson\Message\AbstractMessageHandler class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,33 +40,59 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Generic;
+namespace Lousson\Message;
 
 /** Interfaces: */
-use Lousson\Message\AnyMessageException;
 use Lousson\Message\AnyMessageHandler;
-use Lousson\Message\AnyMessage;
-use Lousson\URI\AnyURIException;
-use Lousson\URI\AnyURI;
+use Lousson\Message\AnyMessageFactory;
+use Lousson\URI\AnyURIFactory;
 
 /** Dependencies: */
 use Lousson\Message\Builtin\BuiltinMessageFactory;
-use Lousson\Record\Builtin\BuiltinRecordFactory;
 use Lousson\URI\Builtin\BuiltinURIFactory;
 
 /** Exceptions: */
 use Lousson\Message\Error\InvalidMessageError;
-use Lousson\Message\Error\RuntimeMessageError;
-use Exception;
 
 /**
  *  An abstract message handler implementation
  *
+ *  The Lousson\Message\AbstractMessageHandler class implements the API
+ *  specified by the AnyMessageHandler interface as far as possible -
+ *  without assuming too many implementation details. This might ease the
+ *  creation of new message handlers.
+ *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-abstract class GenericMessageHandler implements AnyMessageHandler
+abstract class AbstractMessageHandler implements AnyMessageHandler
 {
+    /**
+     *  Create a handler instance
+     *
+     *  The constructor allows the provisioning of custom message and URI
+     *  factory instances for the provider to operate on - instead of the
+     *  builtin default.
+     *
+     *  @param  AnyMessageFactory   $messageFactory The message factory
+     *  @param  AnyURIFactory       $uriFactory     The URI factory
+     */
+    public function __construct(
+        AnyMessageFactory $messageFactory = null,
+        AnyURIFactory $uriFactory = null
+    ) {
+        if (null === $messageFactory) {
+            $messageFactory = new BuiltinMessageFactory();
+        }
+
+        if (null === $uriFactory) {
+            $uriFactory = new BuiltinURIFactory();
+        }
+
+        $this->messageFactory = $messageFactory;
+        $this->uriFactory = $uriFactory;
+    }
+
     /**
      *  Process message data
      *
@@ -76,7 +102,7 @@ abstract class GenericMessageHandler implements AnyMessageHandler
      *  provided, the implementation will either attempt to detect it or
      *  assume "application/octet-stream".
      *
-     *  Note that the default implementation in the GenericMessageHandler
+     *  Note that the default implementation in the AbstractMessageHandler
      *  class will forward the call to the processMessage() method - after
      *  creating a new message instance from the given $data and $type.
      *
@@ -85,65 +111,26 @@ abstract class GenericMessageHandler implements AnyMessageHandler
      *  @param  string              $type       The media type
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case processing the message has failed
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case an argument is considered invalid
+     *
+     *  @throws \RuntimeException
+     *          Raised in case an internal error occurred
      */
     final public function process($uri, $data, $type = null)
     {
         $uri = $this->fetchURI($uri);
         $message = $this->fetchMessage($data, $type);
-
-        try {
-            $this->processMessage($uri, $message);
-        }
-        catch (AnyMessageException $error) {
-            /** Allowed by the AnyMessageHandler interface */
-            throw $error;
-        }
-        catch (Exception $error) {
-            $class = get_class($error);
-            $notice = "Failed to process data: Caught $class";
-            $code = RuntimeMessageError::E_INTERNAL_ERROR;
-            throw new RuntimeMessageError($notice, $code, $error);
-        }
-    }
-
-    /**
-     *  Obtain an URI factory instance
-     *
-     *  The getURIFactory() method returns an URI factory object. It is
-     *  used within e.g. fetchURI() to parse URIs, validate them and to
-     *  create instances of the AnyURI interface.
-     *
-     *  @return \Lousson\Message\AnyURIFactory
-     *          An URI factory instance is returned on success
-     */
-    protected function getURIFactory()
-    {
-        $factory = new BuiltinURIFactory();
-        return $factory;
-    }
-
-    /**
-     *  Obtain a message factory instance
-     *
-     *  The getMessageFactory() method returns a message factory object.
-     *  It is used within e.g. fetchMessage() to create instances of the
-     *  AnyMessage interface.
-     *
-     *  @return \Lousson\Message\AnyMessageFactory
-     *          A message factory instance is returned on success
-     */
-    protected function getMessageFactory()
-    {
-        $factory = new BuiltinMessageFactory();
-        return $factory;
+        $this->processMessage($uri, $message);
     }
 
     /**
      *  Convert an URI into an URI object
      *
      *  The fetchURI() method is used internally to validate the $uri
-     *  provided and parse it into an instance of the AnyURI interface.
+     *  provided and to parse it into an instance of the AnyURI interface.
      *
      *  @param  string              $uri        The URI to parse
      *
@@ -151,24 +138,20 @@ abstract class GenericMessageHandler implements AnyMessageHandler
      *          An URI instance is returned on success
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the URI could not get parsed
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case the URI is considered invalid
      */
     final protected function fetchURI($uri)
     {
-        if (!$uri instanceof AnyURI) try {
-            $factory = $this->getURIFactory();
-            $uri = $factory->getURI($uri);
+        if (!$uri instanceof \Lousson\URI\AnyURI) try {
+            $uri = $this->uriFactory->getURI($uri);
         }
-        catch (AnyURIException $error) {
-            $message = "Failed to parse URI: ". $error->getMessage();
+        catch (\Lousson\URI\AnyURIException $error) {
+            $message = $error->getMessage();
             $code = $error->getCode();
             throw new InvalidMessageError($message, $code, $error);
-        }
-        catch (Exception $error) {
-            $class = get_class($error);
-            $message = "Failed to parse URI: Caught $class";
-            $code = RuntimeMessageError::E_INTERNAL_ERROR;
-            throw new RuntimeMessageError($message, $code, $error);
         }
 
         return $uri;
@@ -188,26 +171,30 @@ abstract class GenericMessageHandler implements AnyMessageHandler
      *          A message instance is returned on success
      *
      *  @throws \Lousson\Message\AnyMessageException
-     *          Raised in case the message could not get created
+     *          All exceptions raised implement this interface
+     *
+     *  @throws \InvalidArgumentException
+     *          Raised in case an argument is considered invalid
      */
     final protected function fetchMessage($data, $type = null)
     {
-        try {
-            $factory = $this->getMessageFactory();
-            $message = $factory->getMessage($data, $type);
-        }
-        catch (AnyMessageException $error) {
-            /** Allowed by the AnyMessageHandler interface */
-            throw $error;
-        }
-        catch (Exception $error) {
-            $class = get_class($error);
-            $notice = "Failed to prepare message: Caught $class";
-            $code = RuntimeMessageError::E_INTERNAL_ERROR;
-            throw new RuntimeMessageError($notice, $code, $error);
-        }
-
+        $factory = $this->messageFactory;
+        $message = $factory->getMessage($data, $type);
         return $message;
     }
+
+    /**
+     *  The provider's message factory instance
+     *
+     *  @var \Lousson\Message\AnyMessageFactory
+     */
+    private $messageFactory;
+
+    /**
+     *  The provider's URI factory instance
+     *
+     *  @var \Lousson\URI\AnyURIFactory
+     */
+    private $uriFactory;
 }
 

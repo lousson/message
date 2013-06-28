@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\InvalidMessageError class definition
+ *  Lousson\Message\AMQP\Intern\AMQPArgumentErrorTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,26 +40,38 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Error;
+namespace Lousson\Message\AMQP\Intern;
 
 /** Dependencies: */
-use Lousson\Message\AnyMessageException;
-use Lousson\Error\InvalidArgumentError;
+use Lousson\Message\AbstractMessageExceptionTest;
+use ReflectionClass;
 
 /**
- *  An exception type for invalid messages
- *
- *  The Lousson\Message\Error\InvalidMessageError exception is raised by
- *  the builtin and generic implementations of the message interfaces when
- *  they encounter and error caused by invalid arguments - e.g. malformed
- *  message/event URIs or message content.
+ *  A test case for the AMQPArgumentError class
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class InvalidMessageError
-    extends InvalidArgumentError
-    implements AnyMessageException
+class AMQPArgumentErrorTest extends AbstractMessageExceptionTest
 {
+    /**
+     *  Obtain the exception to test
+     *
+     *  The getException() method returns the exception instance to be
+     *  tested, according to the given $args - e.g. as provided by the
+     *  provideExceptionParameters() method).
+     *
+     *  @param  array               $args       The exception arguments
+     *
+     *  @return \Exception
+     *          An exception instance is returned on success
+     */
+    public function getException(array $args)
+    {
+        $class = "Lousson\\Message\\AMQP\\Intern\\AMQPArgumentError";
+        $reflection = new ReflectionClass($class);
+        $instance = $reflection->newInstanceArgs($args);
+        return $instance;
+    }
 }
 

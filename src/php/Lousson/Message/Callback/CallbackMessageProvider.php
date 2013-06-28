@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\AnyMessageProvider interface definition
+ *  Lousson\Message\Callback\CallbackMessageProvider class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,57 +40,97 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message;
+namespace Lousson\Message\Callback;
+
+/** Interfaces: */
+use Lousson\Message\AnyMessage;
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerInterface;
+
+/** Dependencies: */
+use Lousson\Message\AbstractMessageProvider;
+use Lousson\Message\Builtin\BuiltinMessageStash;
+use Closure;
+
+/** Exceptions: */
+use Lousson\Message\Error\InvalidMessageError;
 
 /**
- *  An interface for message provider
+ *  A callback message provider implementation
  *
- *  The Lousson\Message\AnyMessageProvider interface declares an API for
- *  message provider implementations in general.
- *
- *  Message providers are data sources to access messages with a pull API
- *  (rather than message handlers, which expect to get the data pushed to
- *  them). They also implement a reporting mechanism to flag messages as
- *  acknowledged or discarded, which allows e.g. an implementation-specific
- *  error handling to restore status or report back to another entity.
+ *  The Lousson\Message\Callback\CallbackMessageProvider implements the
+ *  AnyMessageProvider interface based on a Closure callback provided at
+ *  construction time.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-interface AnyMessageProvider
+class CallbackMessageProvider
+    extends AbstractMessageProvider
+    implements LoggerAwareInterface
 {
     /**
-     *  The bitmask fetch() and fetchMessage() use by default
+     *  Create a provider instance
+     *
+     *  The constructor requires to be provided with a Closure to be used
+     *  as the actual implementation of the fetch() method. This $callback
+     *  must accept one parameter, an instance of the AnyURI interface,
+     *  and return an instance of the AnyMessage interface or NULL.
+     *
+     *  Optionally, one can also specify the URI $factory the message
+     *  provider shall operate with - instead of the builtin default.
+     *
+     *  @param  Closure             $callback   The fetch() callback
+     *  @param  AnyURIFactory       $factory    The URI factory to use
      */
-    const FETCH_DEFAULT = 0x00;
+    public function __construct(
+        Closure $callback,
+        AnyURIFactory $factory = null
+    ) {
+        parent::__construct($factory);
+
+        $provider = $this;
+        $notifier = function(array $stash) use ($provider) {
+            if ($logger = $provider->getLogger()) {
+                foreach ($stash as $key => $tuple) {
+                    $warning = "Discarded message {key} from \"{uri}\"";
+                    $context = array("key" => $key, "uri" => $tuple[0]);
+                    $logger->warning($warning, $context);
+                }
+            }
+        };
+
+        $this->stash = new BuiltinMessageStash($notifier);
+        $this->callback = $callback;
+    }
 
     /**
-     *  A bitmask to request a token-based transaction
+     *  Assign a logger instance
      *
-     *  @var int
+     *  The setLogger() method is used to assign an instance of the PSR-3
+     *  LoggerInterface to the message provider. This logger is used e.g.
+     *  to protocol discarded messages
+     *
+     *  @param  LoggerInterface     $logger     The logger instance
      */
-    const FETCH_CONFIRM = 0x02;
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
 
     /**
-     *  The bitmask for acknowledge() used by default
+     *  Obtain a logger instance
      *
-     *  @var int
-     */
-    const ACK_DEFAULT = 0x00;
-
-    /**
-     *  The bitmask for discard() used by default
+     *  The getLogger() method is used to obtain the logger instance that
+     *  has been assigned via setLogger(), if any.
      *
-     *  @var int
+     *  @return \Psr\Log\LoggerInterface
+     *          A logger instance is returned on success, NULL otherwise
      */
-    const DISC_DEFAULT = 0x00;
-
-    /**
-     *  A bitmask for discard() requiring the message to get re-queued
-     *
-     *  @var int
-     */
-    const DISC_REQUEUE = 0x01;
+    public function getLogger()
+    {
+        return $this->logger;
+    }
 
     /**
      *  Retrieve message instances
@@ -119,9 +159,28 @@ interface AnyMessageProvider
      *  @throws \RuntimeException
      *          Raised in case an internal error occurred
      */
-    public function fetch(
-        $uri, $flags = self::FETCH_DEFAULT, &$token = null
-    );
+    final public function fetch(
+        $uri,
+        $flags = self::FETCH_DEFAULT,
+        &$token = null
+    ) {
+        $uri = $this->fetchURI($uri);
+        $key = $uri->getLexical();
+
+        if (!empty($this->requeued[$key])) {
+            $message = array_shift($this->requeued[$key]);
+        }
+        else {
+            $callback = $this->callback;
+            $message = $callback($uri);
+        }
+
+        if (isset($message) && self::FETCH_CONFIRM & (int) $flags) {
+            $token = $this->stash->store(array($uri, $message));
+        }
+
+        return $message;
+    }
 
     /**
      *  Acknowledge a message
@@ -146,7 +205,10 @@ interface AnyMessageProvider
      *  @throws \RuntimeException
      *          Raised in case an internal error occurred
      */
-    public function acknowledge($token, $flags = self::ACK_DEFAULT);
+    final public function acknowledge($token, $flags = self::ACK_DEFAULT)
+    {
+        $this->stash->restore($token, __FUNCTION__);
+    }
 
     /**
      *  Discard a message
@@ -172,6 +234,65 @@ interface AnyMessageProvider
      *  @throws \RuntimeException
      *          Raised in case an internal error occurred
      */
-    public function discard($token, $flags = self::DISC_DEFAULT);
+    final public function discard($token, $flags = self::DISC_DEFAULT)
+    {
+        list($uri, $message) = $this->stash->restore($token, __FUNCTION__);
+
+        if (self::DISC_REQUEUE & (int) $flags) {
+            $this->requeued[(string) $uri][] = $message;
+        }
+        else if ($logger = $this->getLogger()) {
+            $notice = "Discarded message {token} from \"{uri}\"";
+            $context = array("token" => $token, "uri" => $uri);
+            $logger->warning($notice, $context);
+        }
+    }
+
+    /**
+     *  Cleanup
+     *
+     *  The constructor has been implemented explicitely in order to take
+     *  care of any messages not yet confirmed/discarded - or re-queued in
+     *  a former operation but never fetched again.
+     */
+    public function __destruct()
+    {
+        foreach ($this->requeued as $uri => &$list) {
+            while (!empty($list)) {
+                $this->fetch($uri, self::FETCH_CONFIRM, $token);
+            }
+        }
+
+        /* Force stash cleanup here and now */
+        unset($this->stash);
+    }
+
+    /**
+     *  A stash for managing pending message tokens
+     *
+     *  @var \Lousson\Message\Builtin\BuiltinMessageStash
+     */
+    private $stash;
+
+    /**
+     *  A map of requeued messages per-URI
+     *
+     *  @var array
+     */
+    private $requeued = array();
+
+    /**
+     *  The callback invoked by fetch()
+     *
+     *  @var \Closure
+     */
+    private $callback;
+
+    /**
+     *  The provider's logger instance, if any
+     *
+     *  @var \Psr\Log\LoggerInterface
+     */
+    private $logger;
 }
 
