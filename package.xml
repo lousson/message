@@ -29,6 +29,12 @@
     <email>alevai at quirkies.org</email>
     <active>yes</active>
   </developer>
+  <developer>
+    <name>Benjamin Schneider</name>
+    <user>bjsn</user>
+    <email>benjamin.schneider.de at gmail.com</email>
+    <active>yes</active>
+  </developer>
 
   <date>${build.date}</date>
   <time>${build.time}</time>
