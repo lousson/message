@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\RuntimeMessageError class definition
+ *  Lousson\Message\Error\MessageRuntimeError class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -49,14 +49,14 @@ use Lousson\Error\RuntimeError;
 /**
  *  An exception type for runtime errors
  *
- *  The Lousson\Message\Error\RuntimeMessageError exception is raised by
+ *  The Lousson\Message\Error\MessageRuntimeError exception is raised by
  *  the builtin and generic implementations of the message interfaces in
  *  case they encounter an error that is not caused by the caller.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class RuntimeMessageError
+class MessageRuntimeError
     extends RuntimeError
     implements AnyMessageException
 {

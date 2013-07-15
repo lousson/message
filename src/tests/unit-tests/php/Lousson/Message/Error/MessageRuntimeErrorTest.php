@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Builtin\BuiltinMessageResolverTest class definition
+ *  Lousson\Message\Error\MessageRuntimeErrorTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,37 +40,56 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Builtin;
+namespace Lousson\Message\Error;
 
 /** Dependencies: */
-use Lousson\Message\AbstractMessageResolverTest;
-use Lousson\Message\Builtin\BuiltinMessageResolver;
+use Lousson\AbstractExceptionTest;
+use ReflectionClass;
 
 /**
- *  A test case for the builtin message resolver
- *
- *  The Lousson\Message\Builtin\BuiltinMessageResolverTest class is a test
- *  case derived from the AbstractMessageResolverTest.
+ *  A test case for the MessageRuntimeError class
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-final class BuiltinMessageResolverTest
-    extends AbstractMessageResolverTest
+class MessageRuntimeErrorTest extends AbstractExceptionTest
 {
     /**
-     *  Obtain a message resolver instance
+     *  Obtain the exception to test
      *
-     *  The getMessageResolver() method is used to obtain the resolver
-     *  instance to use in the tests.
+     *  The getException() method returns the exception instance to be
+     *  tested, according to the given $args - e.g. as provided by the
+     *  provideExceptionParameters() method).
      *
-     *  @return \Lousson\Message\Builtin\BuiltinMessageResolver
-     *          A message resolver instance is returned on success
+     *  @param  array               $args       The exception arguments
+     *
+     *  @return \Exception
+     *          An exception instance is returned on success
      */
-    public function getMessageResolver()
+    public function getException(array $args)
     {
-        $resolver = new BuiltinMessageResolver();
-        return $resolver;
+        $class = "Lousson\\Message\\Error\\MessageRuntimeError";
+        $reflection = new ReflectionClass($class);
+        $instance = $reflection->newInstanceArgs($args);
+        return $instance;
+    }
+
+    /**
+     *  Obtain a list of implemented interfaces
+     *
+     *  The getExpectedInterfaces() method returns a list of zero or more
+     *  interface names, each referring to an interface the exception that
+     *  is returned by the getException() method is expected to implement.
+     *
+     *  @return array
+     *          A list of interface names is returned on success
+     */
+    public function getExpectedInterfaces()
+    {
+        $interfaces = parent::getExpectedInterfaces();
+        $interfaces[] = "Lousson\\Message\\AnyMessageException";
+
+        return $interfaces;
     }
 }
 

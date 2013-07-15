@@ -52,8 +52,8 @@ use Lousson\URI\AnyURI;
 use Lousson\URI\Builtin\BuiltinURIFactory;
 
 /** Exceptions: */
-use Lousson\Message\Error\InvalidMessageError;
-use Lousson\Message\Error\RuntimeMessageError;
+use Lousson\Message\Error\MessageArgumentError;
+use Lousson\Message\Error\MessageRuntimeError;
 
 /**
  *  An abstract message resolver implementation
@@ -248,7 +248,7 @@ abstract class AbstractMessageResolver implements AnyMessageResolver
      *  @return array
      *          A list of URI instances is returned on success
      *
-     *  @throws \Lousson\Message\Error\InvalidMessageError
+     *  @throws \Lousson\Message\Error\MessageArgumentError
      *          Raised in case the given $uri is malformed
      */
     private function resolveURI($uri)
@@ -273,7 +273,7 @@ abstract class AbstractMessageResolver implements AnyMessageResolver
             $message = $error->getMessage();
             $message = "Could not resolve entity URI; $message";
             $code = $error->getCode();
-            throw new InvalidMessageError($message, $code, $error);
+            throw new MessageArgumentError($message, $code, $error);
         }
     }
 
