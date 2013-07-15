@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Generic\GenericMessageResolverTest class definition
+ *  Lousson\Message\Callback\CallbackMessageResolverTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,21 +40,25 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Generic;
+namespace Lousson\Message\Callback;
+
+/** Interfaces: */
+use Lousson\URI\AnyURI;
 
 /** Dependencies: */
 use Lousson\Message\AbstractMessageResolverTest;
+use Lousson\Message\Callback\CallbackMessageResolver;
 use Lousson\Message\Generic\GenericMessageResolver;
-use Lousson\URI\Generic\GenericURI;
+use Lousson\URI\Builtin\BuiltinURIResolver;
 
 /** Exceptions: */
-use Lousson\Message\Error\MessageRuntimeError;
-use Lousson\URI\Builtin\BuiltinURIResolver;
+use Lousson\Message\Error\MessageArgumentError;
+use DomainException;
 
 /**
  *  A test case for the generic message resolver
  *
- *  The Lousson\Message\Generic\GenericMessageResolverTest class is a test
+ *  The Lousson\Message\Callback\CallbackMessageResolverTest class is a test
  *  case derived from the AbstractMessageResolverTest. It extends the list
  *  of tests by checks specific for the implementation of the generic
  *  message resolver.
@@ -62,7 +66,7 @@ use Lousson\URI\Builtin\BuiltinURIResolver;
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-final class GenericMessageResolverTest
+final class CallbackMessageResolverTest
     extends AbstractMessageResolverTest
 {
     /**
@@ -71,87 +75,89 @@ final class GenericMessageResolverTest
      *  The getMessageResolver() method is used to obtain the resolver
      *  instance to use in the tests.
      *
-     *  @return \Lousson\Message\Generic\GenericMessageResolver
+     *  @return \Lousson\Message\Callback\CallbackMessageResolver
      *          A message resolver instance is returned on success
      */
     public function getMessageResolver()
     {
-        $fallback = $this->getMock("Lousson\\Message\\AnyMessageResolver");
         $resolver = new BuiltinURIResolver();
-        $resolver = new GenericMessageResolver($resolver, null, $fallback);
+        $resolver = new GenericMessageResolver($resolver);
+
+        $callback = function(AnyURI $uri) use ($resolver) {
+            return $resolver;
+        };
+
+        $resolver = new CallbackMessageResolver($callback);
         return $resolver;
     }
 
     /**
-     *  Test the setHandler() method
+     *  Test the lookupResolver() method
      *
-     *  The testSetHandler() method is a test case for the setHandler()
-     *  method. It verifies that the setter/getter association is working
-     *  and finally tests the parameter validation.
+     *  The testLookupErrorHandling() method is a test case to check
+     *  the handling of message exceptions raised by the callback.
      *
-     *  @throws \PHPUnit_Framework_AssertionFailedError
-     *          Raised in case an assertion has failed
+     *  @expectedException  Lousson\Message\Error\MessageArgumentError
+     *  @test
      *
      *  @throws \Lousson\Message\Error\MessageArgumentError
-     *          Raised in case the test is successful
+     *          Raised if the test is successful
      *
      *  @throws \Exception
      *          Raised in case of an implementation error
      */
-    public function testSetHandler()
+    public function testLookupErrorHandling()
     {
-        $resolver = $this->getMessageResolver();
-        $resolverClass = get_class($resolver);
-
-        $handler = $this->getMessageHandler();
-        $resolver->setHandler("foo", $handler);
-        $uri = "foo:bar";
-
-        $this->assertSame(
-            $handler, $resolver->resolveHandler($uri), sprintf(
-            "The %s::resolveHandler() method must return the handler ".
-            "formerly assigned via setHandler()",
-            $resolverClass
-        ));
-
-        $this->setExpectedException(self::I_EXCEPTION);
-        $resolver->setHandler(":äöü", $handler);
+        $callback = function($uri) { throw new MessageArgumentError; };
+        $resolver = new CallbackMessageResolver($callback);
+        $uri = "http://example.com/";
+        $resolver->resolveHandler($uri);
     }
 
     /**
-     *  Test the setProvider() method
+     *  Test the lookupResolver() method
      *
-     *  The testSetProvider() method is a test case for the setProvider()
-     *  method. It verifies that the setter/getter association is working
-     *  and finally tests the parameter validation.
+     *  The testLookupExceptionHandling() method is a test case to check
+     *  the handling of non-domain exceptions raised by the callback.
      *
-     *  @throws \PHPUnit_Framework_AssertionFailedError
-     *          Raised in case an assertion has failed
+     *  @expectedException  Lousson\Message\Error\MessageRuntimeError
+     *  @test
      *
-     *  @throws \Lousson\Message\Error\MessageArgumentError
-     *          Raised in case the test is successful
+     *  @throws \Lousson\Message\Error\MessageRuntimeError
+     *          Raised if the test is successful
      *
      *  @throws \Exception
      *          Raised in case of an implementation error
      */
-    public function testSetProvider()
+    public function testLookupExceptionHandling()
     {
-        $resolver = $this->getMessageResolver();
-        $resolverClass = get_class($resolver);
+        $callback = function($uri) { throw new DomainException; };
+        $resolver = new CallbackMessageResolver($callback);
+        $uri = "http://lousson.org/";
+        $resolver->resolveHandler($uri);
+    }
 
-        $provider = $this->getMessageProvider();
-        $resolver->setProvider("foo", $provider);
-        $uri = "foo:bar";
-
-        $this->assertSame(
-            $provider, $resolver->resolveProvider($uri), sprintf(
-            "The %s::resolveProvider() method must return the provider ".
-            "formerly assigned via setProvider()",
-            $resolverClass
-        ));
-
-        $this->setExpectedException(self::I_EXCEPTION);
-        $resolver->setProvider(":äöü", $provider);
+    /**
+     *  Test the lookupResolver() method
+     *
+     *  The testLookupResultHandling() method is a test case to check
+     *  the handling of invalid values returned by the callback.
+     *
+     *  @expectedException  Lousson\Message\Error\MessageRuntimeError
+     *  @test
+     *
+     *  @throws \Lousson\Message\Error\MessageRuntimeError
+     *          Raised if the test is successful
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    public function testLookupResultHandling()
+    {
+        $callback = function(AnyURI $uri) { return $this; };
+        $resolver = new CallbackMessageResolver($callback);
+        $uri = "urn:foo:bar";
+        $resolver->resolveHandler($uri);
     }
 }
 
