@@ -1,6 +1,9 @@
 Lousson: Message
 ================
 
+[![Build Status](https://travis-ci.org/lousson/message.png?branch=master)]
+(https://travis-ci.org/lousson/message)
+
 NOTE: THIS PACKAGE IS A WORKING DRAFT !!
 
 The `Lousson_Message` package provides various facilities to communicate
