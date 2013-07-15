@@ -50,7 +50,7 @@ use Lousson\URI\AnyURIFactory;
 use Lousson\URI\Builtin\BuiltinURIFactory;
 
 /** Exceptions: */
-use Lousson\Message\Error\InvalidMessageError;
+use Lousson\Message\Error\MessageArgumentError;
 
 /**
  *  An abstract message provider implementation
@@ -108,7 +108,7 @@ abstract class AbstractMessageProvider implements AnyMessageProvider
         catch (\Lousson\URI\AnyURIException $error) {
             $message = $error->getMessage();
             $code = $error->getCode();
-            throw new InvalidMessageError($message, $code, $error);
+            throw new MessageArgumentError($message, $code, $error);
         }
 
         return $uri;

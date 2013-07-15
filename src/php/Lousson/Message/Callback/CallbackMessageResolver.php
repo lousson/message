@@ -52,7 +52,7 @@ use Lousson\Message\AbstractMessageResolver;
 use Closure;
 
 /** Exceptions: */
-use Lousson\Message\Error\RuntimeMessageError;
+use Lousson\Message\Error\MessageRuntimeError;
 
 /**
  *  A callback message resolver implementation
@@ -191,14 +191,14 @@ class CallbackMessageResolver extends AbstractMessageResolver
             $class = get_class($error);
             $message = "Could not resolve $uri - Caught $class";
             $code = $error->getCode();
-            throw new RuntimeMessageError($message, $code, $error);
+            throw new MessageRuntimeError($message, $code, $error);
         }
 
         if (!$resolver instanceof \Lousson\Message\AnyMessageResolver) {
             $type = @get_class($result)?: gettype($result);
             $message = "Could not resolve $uri - Callback returned $type";
-            $code = RuntimeMessageError::E_INVALID;
-            throw new RuntimeMessageError($message, $code);
+            $code = MessageRuntimeError::E_INVALID;
+            throw new MessageRuntimeError($message, $code);
         }
 
         return $resolver;

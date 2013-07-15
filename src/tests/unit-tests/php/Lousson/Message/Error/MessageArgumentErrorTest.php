@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\RuntimeMessageErrorTest class definition
+ *  Lousson\Message\Error\MessageArgumentErrorTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -47,12 +47,12 @@ use Lousson\AbstractExceptionTest;
 use ReflectionClass;
 
 /**
- *  A test case for the RuntimeMessageError class
+ *  A test case for the MessageArgumentError class
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class RuntimeMessageErrorTest extends AbstractExceptionTest
+class MessageArgumentErrorTest extends AbstractExceptionTest
 {
     /**
      *  Obtain the exception to test
@@ -68,7 +68,7 @@ class RuntimeMessageErrorTest extends AbstractExceptionTest
      */
     public function getException(array $args)
     {
-        $class = "Lousson\\Message\\Error\\RuntimeMessageError";
+        $class = "Lousson\\Message\\Error\\MessageArgumentError";
         $reflection = new ReflectionClass($class);
         $instance = $reflection->newInstanceArgs($args);
         return $instance;

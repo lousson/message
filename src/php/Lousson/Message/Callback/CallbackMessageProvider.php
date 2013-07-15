@@ -53,7 +53,7 @@ use Lousson\Message\Builtin\BuiltinMessageStash;
 use Closure;
 
 /** Exceptions: */
-use Lousson\Message\Error\InvalidMessageError;
+use Lousson\Message\Error\MessageArgumentError;
 
 /**
  *  A callback message provider implementation

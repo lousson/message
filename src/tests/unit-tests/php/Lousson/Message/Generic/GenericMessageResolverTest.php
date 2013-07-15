@@ -48,7 +48,7 @@ use Lousson\Message\Generic\GenericMessageResolver;
 use Lousson\URI\Generic\GenericURI;
 
 /** Exceptions: */
-use Lousson\Message\Error\RuntimeMessageError;
+use Lousson\Message\Error\MessageRuntimeError;
 use Lousson\URI\Builtin\BuiltinURIResolver;
 
 /**
@@ -92,7 +92,7 @@ final class GenericMessageResolverTest
      *  @throws \PHPUnit_Framework_AssertionFailedError
      *          Raised in case an assertion has failed
      *
-     *  @throws \Lousson\Message\Error\InvalidMessageError
+     *  @throws \Lousson\Message\Error\MessageArgumentError
      *          Raised in case the test is successful
      *
      *  @throws \Exception
@@ -128,7 +128,7 @@ final class GenericMessageResolverTest
      *  @throws \PHPUnit_Framework_AssertionFailedError
      *          Raised in case an assertion has failed
      *
-     *  @throws \Lousson\Message\Error\InvalidMessageError
+     *  @throws \Lousson\Message\Error\MessageArgumentError
      *          Raised in case the test is successful
      *
      *  @throws \Exception

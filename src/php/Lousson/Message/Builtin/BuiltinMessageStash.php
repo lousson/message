@@ -46,7 +46,7 @@ namespace Lousson\Message\Builtin;
 use Closure;
 
 /** Exceptions: */
-use Lousson\Message\Error\InvalidMessageError;
+use Lousson\Message\Error\MessageArgumentError;
 
 /**
  *  A stash for message data
@@ -108,7 +108,7 @@ final class BuiltinMessageStash
      *  @return mixed
      *          The data associated with the token is returned on success
      *
-     *  @throws \Lousson\Message\Error\InvalidMessageError
+     *  @throws \Lousson\Message\Error\MessageArgumentError
      *          Raised in case the token is not associated with any data
      */
     public function restore($token, $use = "use")
@@ -121,7 +121,7 @@ final class BuiltinMessageStash
         }
 
         $notice = "Could not $use invalid token: $token";
-        throw new InvalidMessageError($notice);
+        throw new MessageArgumentError($notice);
     }
 
     /**

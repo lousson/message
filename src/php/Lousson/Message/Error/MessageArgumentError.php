@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\InvalidMessageError class definition
+ *  Lousson\Message\Error\MessageArgumentError class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -49,7 +49,7 @@ use Lousson\Error\InvalidArgumentError;
 /**
  *  An exception type for invalid messages
  *
- *  The Lousson\Message\Error\InvalidMessageError exception is raised by
+ *  The Lousson\Message\Error\MessageArgumentError exception is raised by
  *  the builtin and generic implementations of the message interfaces when
  *  they encounter and error caused by invalid arguments - e.g. malformed
  *  message/event URIs or message content.
@@ -57,7 +57,7 @@ use Lousson\Error\InvalidArgumentError;
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class InvalidMessageError
+class MessageArgumentError
     extends InvalidArgumentError
     implements AnyMessageException
 {

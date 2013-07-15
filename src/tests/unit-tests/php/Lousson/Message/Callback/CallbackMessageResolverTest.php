@@ -52,7 +52,7 @@ use Lousson\Message\Generic\GenericMessageResolver;
 use Lousson\URI\Builtin\BuiltinURIResolver;
 
 /** Exceptions: */
-use Lousson\Message\Error\InvalidMessageError;
+use Lousson\Message\Error\MessageArgumentError;
 use DomainException;
 
 /**
@@ -97,10 +97,10 @@ final class CallbackMessageResolverTest
      *  The testLookupErrorHandling() method is a test case to check
      *  the handling of message exceptions raised by the callback.
      *
-     *  @expectedException  Lousson\Message\Error\InvalidMessageError
+     *  @expectedException  Lousson\Message\Error\MessageArgumentError
      *  @test
      *
-     *  @throws \Lousson\Message\Error\InvalidMessageError
+     *  @throws \Lousson\Message\Error\MessageArgumentError
      *          Raised if the test is successful
      *
      *  @throws \Exception
@@ -108,7 +108,7 @@ final class CallbackMessageResolverTest
      */
     public function testLookupErrorHandling()
     {
-        $callback = function($uri) { throw new InvalidMessageError; };
+        $callback = function($uri) { throw new MessageArgumentError; };
         $resolver = new CallbackMessageResolver($callback);
         $uri = "http://example.com/";
         $resolver->resolveHandler($uri);
@@ -120,10 +120,10 @@ final class CallbackMessageResolverTest
      *  The testLookupExceptionHandling() method is a test case to check
      *  the handling of non-domain exceptions raised by the callback.
      *
-     *  @expectedException  Lousson\Message\Error\RuntimeMessageError
+     *  @expectedException  Lousson\Message\Error\MessageRuntimeError
      *  @test
      *
-     *  @throws \Lousson\Message\Error\RuntimeMessageError
+     *  @throws \Lousson\Message\Error\MessageRuntimeError
      *          Raised if the test is successful
      *
      *  @throws \Exception
@@ -143,10 +143,10 @@ final class CallbackMessageResolverTest
      *  The testLookupResultHandling() method is a test case to check
      *  the handling of invalid values returned by the callback.
      *
-     *  @expectedException  Lousson\Message\Error\RuntimeMessageError
+     *  @expectedException  Lousson\Message\Error\MessageRuntimeError
      *  @test
      *
-     *  @throws \Lousson\Message\Error\RuntimeMessageError
+     *  @throws \Lousson\Message\Error\MessageRuntimeError
      *          Raised if the test is successful
      *
      *  @throws \Exception

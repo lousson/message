@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Error\InvalidMessageErrorTest class definition
+ *  Lousson\Message\Error\MessageRuntimeError class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -43,53 +43,22 @@
 namespace Lousson\Message\Error;
 
 /** Dependencies: */
-use Lousson\AbstractExceptionTest;
-use ReflectionClass;
+use Lousson\Message\AnyMessageException;
+use Lousson\Error\RuntimeError;
 
 /**
- *  A test case for the InvalidMessageError class
+ *  An exception type for runtime errors
+ *
+ *  The Lousson\Message\Error\MessageRuntimeError exception is raised by
+ *  the builtin and generic implementations of the message interfaces in
+ *  case they encounter an error that is not caused by the caller.
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class InvalidMessageErrorTest extends AbstractExceptionTest
+class MessageRuntimeError
+    extends RuntimeError
+    implements AnyMessageException
 {
-    /**
-     *  Obtain the exception to test
-     *
-     *  The getException() method returns the exception instance to be
-     *  tested, according to the given $args - e.g. as provided by the
-     *  provideExceptionParameters() method).
-     *
-     *  @param  array               $args       The exception arguments
-     *
-     *  @return \Exception
-     *          An exception instance is returned on success
-     */
-    public function getException(array $args)
-    {
-        $class = "Lousson\\Message\\Error\\InvalidMessageError";
-        $reflection = new ReflectionClass($class);
-        $instance = $reflection->newInstanceArgs($args);
-        return $instance;
-    }
-
-    /**
-     *  Obtain a list of implemented interfaces
-     *
-     *  The getExpectedInterfaces() method returns a list of zero or more
-     *  interface names, each referring to an interface the exception that
-     *  is returned by the getException() method is expected to implement.
-     *
-     *  @return array
-     *          A list of interface names is returned on success
-     */
-    public function getExpectedInterfaces()
-    {
-        $interfaces = parent::getExpectedInterfaces();
-        $interfaces[] = "Lousson\\Message\\AnyMessageException";
-
-        return $interfaces;
-    }
 }
 

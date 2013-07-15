@@ -55,7 +55,7 @@ use Lousson\Message\AbstractMessageResolver;
 use Lousson\URI\Builtin\BuiltinURIUtil;
 
 /** Exceptions: */
-use Lousson\Message\Error\InvalidMessageError;
+use Lousson\Message\Error\MessageArgumentError;
 
 /**
  *  A generic message resolver implementation
@@ -323,7 +323,7 @@ class GenericMessageResolver extends AbstractMessageResolver
      *  @return string
      *          The normalized URI scheme name is returned on success
      *
-     *  @throws \Lousson\Message\Error\InvalidMessageError
+     *  @throws \Lousson\Message\Error\MessageArgumentError
      *          Raised in case the URI scheme is considered invalid
      */
     private function fetchScheme($scheme)
@@ -335,7 +335,7 @@ class GenericMessageResolver extends AbstractMessageResolver
         catch (\Lousson\URI\AnyURIException $error) {
             $message = $error->getMessage();
             $code = $error->getCode();
-            throw new InvalidMessageError($message, $code, $error);
+            throw new MessageArgumentError($message, $code, $error);
         }
     }
 
