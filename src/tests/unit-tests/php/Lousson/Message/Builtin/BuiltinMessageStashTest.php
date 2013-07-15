@@ -82,7 +82,7 @@ final class BuiltinMessageStashTest extends AbstractMessageTest
     {
         $test = $this;
         $callback = function(array $stash) use($test) {
-            $this->assertCount(1, $stash);
+            $test->assertCount(1, $stash);
             $test->assertSame($test, current($stash));
             throw new DomainException;
         };
