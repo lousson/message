@@ -81,6 +81,12 @@ ${contents}
         <channel>pear.lousson.org</channel>
         <min>0.4.2</min>
       </package>
+      <package>
+        <name>Psr_Log</name>
+        <channel>pear.quirkies.org</channel>
+        <min>1.0.0</min>
+        <max>1.999.999</max>
+      </package>
     </required>
     <optional>
       <package>
