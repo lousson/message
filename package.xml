@@ -75,11 +75,13 @@ ${contents}
         <name>Lousson_Exception</name>
         <channel>pear.lousson.org</channel>
         <min>0.2.2</min>
+        <max>0.999.999</max>
       </package>
       <package>
         <name>Lousson_URI</name>
         <channel>pear.lousson.org</channel>
         <min>0.4.2</min>
+        <max>0.999.999</max>
       </package>
       <package>
         <name>Psr_Log</name>
@@ -93,6 +95,7 @@ ${contents}
         <name>Lousson_Sniffs</name>
         <channel>pear.lousson.org</channel>
         <min>0.4.0</min>
+        <max>0.999.999</max>
       </package>
     </optional>
   </dependencies>
