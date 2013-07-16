@@ -72,14 +72,13 @@ class GenericMessageProvider extends AbstractMessageProvider
      *  Create a provider instance
      *
      *  The constructor requires the caller to provide a message $resolver
-     *  instance, which will get used to determine the actual provider to be
-     *  used when the fetch() method is invoked.
+     *  instance, which will get used to determine the actual provider to
+     *  be used when the fetch() method is invoked.
      *
      *  One can also provide a custom URI factory, to be used internally -
      *  instead of the builtin ones.
      *
      *  @param  AnyMessageResolver  $resolver       The message resolver
-     *  @param  AnyMessageFactory   $messageFactory The message factory
      *  @param  AnyURIFactory       $uriFactory     The URI factory
      */
     public function __construct(
