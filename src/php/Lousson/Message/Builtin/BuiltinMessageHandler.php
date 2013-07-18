@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Generic\GenericMessageHandler class definition
+ *  Lousson\Message\Builtin\BuiltinMessageHandler class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,7 +40,7 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Generic;
+namespace Lousson\Message\Builtin;
 
 /** Interfaces: */
 use Lousson\Message\AnyMessageFactory;
@@ -55,9 +55,9 @@ use Lousson\Message\AbstractMessageHandler;
 use Lousson\Message\Error\MessageRuntimeError;
 
 /**
- *  A generic message handler implementation
+ *  A builtin message handler implementation
  *
- *  The Lousson\Message\Generic\GenericMessageHandler is an implementation
+ *  The Lousson\Message\Builtin\BuiltinMessageHandler is an implementation
  *  of the AnyMessageHandler interface that acts as a proxy:
  *  A message resolver, provided at construction time, is used to determine
  *  the actual handler to process messages - at runtime.
@@ -65,7 +65,7 @@ use Lousson\Message\Error\MessageRuntimeError;
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class GenericMessageHandler extends AbstractMessageHandler
+class BuiltinMessageHandler extends AbstractMessageHandler
 {
     /**
      *  Create a handler instance

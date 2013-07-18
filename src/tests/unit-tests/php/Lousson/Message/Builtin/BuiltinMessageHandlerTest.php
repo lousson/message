@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Generic\GenericMessageHandlerTest class definition
+ *  Lousson\Message\Builtin\BuiltinMessageHandlerTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,7 +40,7 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Generic;
+namespace Lousson\Message\Builtin;
 
 /** Interfaces: */
 use Lousson\Message\AnyMessageHandler;
@@ -49,7 +49,7 @@ use Lousson\URI\AnyURI;
 
 /** Dependencies: */
 use Lousson\Message\AbstractMessageHandlerTest;
-use Lousson\Message\Generic\GenericMessageHandler;
+use Lousson\Message\Builtin\BuiltinMessageHandler;
 use Lousson\URI\Builtin\BuiltinURIFactory;
 use Psr\Log\NullLogger;
 
@@ -63,7 +63,7 @@ use Lousson\Message\Error\MessageRuntimeError;
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-final class GenericMessageHandlerTest extends AbstractMessageHandlerTest
+final class BuiltinMessageHandlerTest extends AbstractMessageHandlerTest
 {
     /**
      *  Obtain a message handler instance
@@ -71,7 +71,7 @@ final class GenericMessageHandlerTest extends AbstractMessageHandlerTest
      *  The getMessageHandler() method returns an instance of the message
      *  handler class that is to be tested.
      *
-     *  @return \Lousson\Message\Generic\GenericMessageHandler
+     *  @return \Lousson\Message\Builtin\BuiltinMessageHandler
      *          A message handler instance is returned on success
      */
     public function getMessageHandler()
@@ -109,7 +109,7 @@ final class GenericMessageHandlerTest extends AbstractMessageHandlerTest
             ->method("resolveHandler")
             ->will($this->returnCallback($resolverCallback));
 
-        $outer = new GenericMessageHandler($resolver);
+        $outer = new BuiltinMessageHandler($resolver);
         return $outer;
     }
 
@@ -143,7 +143,7 @@ final class GenericMessageHandlerTest extends AbstractMessageHandlerTest
             ->method("resolveHandler")
             ->will($this->returnValue($handler));
 
-        $handler = new GenericMessageHandler($resolver);
+        $handler = new BuiltinMessageHandler($resolver);
         $handler->process("urn:foo:bar", "foo? bar! baz.");
     }
 
@@ -177,7 +177,7 @@ final class GenericMessageHandlerTest extends AbstractMessageHandlerTest
             ->method("resolveHandler")
             ->will($this->returnValue($handler));
 
-        $handler = new GenericMessageHandler($resolver);
+        $handler = new BuiltinMessageHandler($resolver);
         $handler->process("urn:foo:bar", "foo? bar! baz.");
     }
 
@@ -200,7 +200,7 @@ final class GenericMessageHandlerTest extends AbstractMessageHandlerTest
     public function testProcessMissing()
     {
         $resolver = $this->getMock(self::I_RESOLVER);
-        $handler = new GenericMessageHandler($resolver);
+        $handler = new BuiltinMessageHandler($resolver);
         $handler->process("urn:foo:bar", "foo? bar! baz.");
     }
 }

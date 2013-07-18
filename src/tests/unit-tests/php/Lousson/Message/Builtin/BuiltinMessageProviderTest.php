@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Generic\GenericMessageProviderTest class definition
+ *  Lousson\Message\Builtin\BuiltinMessageProviderTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,7 +40,7 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Generic;
+namespace Lousson\Message\Builtin;
 
 /** Interfaces: */
 use Lousson\Message\AnyMessageProvider;
@@ -48,16 +48,16 @@ use Lousson\Message\AnyMessageProvider;
 /** Dependencies: */
 use Lousson\Message\AbstractMessageProviderTest;
 use Lousson\Message\Callback\CallbackMessageProvider;
-use Lousson\Message\Generic\GenericMessageProvider;
+use Lousson\Message\Builtin\BuiltinMessageProvider;
 use Psr\Log\NullLogger;
 
 /**
- *  A test case for the generic message provider
+ *  A test case for the builtin message provider
  *
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-final class GenericMessageProviderTest extends AbstractMessageProviderTest
+final class BuiltinMessageProviderTest extends AbstractMessageProviderTest
 {
     /**
      *  Obtain a message provider instance
@@ -68,17 +68,17 @@ final class GenericMessageProviderTest extends AbstractMessageProviderTest
      *  @param  string              $uri        The test message URI
      *  @param  array               $expected   The test messages
      *
-     *  @return \Lousson\Message\Generic\GenericMessageProvider
+     *  @return \Lousson\Message\Builtin\BuiltinMessageProvider
      *          A message provider instance is returned on success
      */
     public function getMessageProvider($uri, array $expected)
     {
-        $generic = function($uri) use(&$expected) {
+        $builtin = function($uri) use(&$expected) {
             $message = array_shift($expected);
             return $message;
         };
 
-        $inner = new CallbackMessageProvider($generic);
+        $inner = new CallbackMessageProvider($builtin);
         $inner->setLogger(new NullLogger());
 
         $resolverMethods = array("resolveProvider", "resolveHandler");
@@ -96,7 +96,7 @@ final class GenericMessageProviderTest extends AbstractMessageProviderTest
             ->method("resolveProvider")
             ->will($this->returnCallback($resolverCallback));
 
-        $outer = new GenericMessageProvider($resolver);
+        $outer = new BuiltinMessageProvider($resolver);
         return $outer;
     }
 
@@ -130,7 +130,7 @@ final class GenericMessageProviderTest extends AbstractMessageProviderTest
             ->method("resolveProvider")
             ->will($this->returnValue($provider));
 
-        $provider = new GenericMessageProvider($resolver);
+        $provider = new BuiltinMessageProvider($resolver);
         $provider->fetch("urn:foo:bar");
     }
 
@@ -153,7 +153,7 @@ final class GenericMessageProviderTest extends AbstractMessageProviderTest
     public function testFetchMissing()
     {
         $resolver = $this->getMock(self::I_RESOLVER);
-        $provider = new GenericMessageProvider($resolver);
+        $provider = new BuiltinMessageProvider($resolver);
         $provider->fetch("urn:foo:bar");
     }
 
@@ -161,7 +161,7 @@ final class GenericMessageProviderTest extends AbstractMessageProviderTest
      *  Test the destructor
      *
      *  The testDestructor() method verifies that the cleanup in the
-     *  GenericMessageProvider's destructor works as expected.
+     *  BuiltinMessageProvider's destructor works as expected.
      *
      *  @param  array               $data       The test messages
      *  @param  string              $uri        The message/event URI

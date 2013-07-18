@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Generic\GenericMessageProvider class definition
+ *  Lousson\Message\Builtin\BuiltinMessageProvider class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,7 +40,7 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Generic;
+namespace Lousson\Message\Builtin;
 
 /** Interfaces: */
 use Lousson\Message\AnyMessageFactory;
@@ -56,9 +56,9 @@ use Lousson\Message\Builtin\BuiltinMessageStash;
 use Lousson\Message\Error\MessageRuntimeError;
 
 /**
- *  A generic message provider implementation
+ *  A builtin message provider implementation
  *
- *  The Lousson\Message\Generic\GenericMessageProvider is an implementation
+ *  The Lousson\Message\Builtin\BuiltinMessageProvider is an implementation
  *  of the AnyMessageProvider interface that acts as a proxy:
  *  A message resolver, provided at construction time, is used to determine
  *  the actual provider to process messages - at runtime.
@@ -66,7 +66,7 @@ use Lousson\Message\Error\MessageRuntimeError;
  *  @since      lousson/Lousson_Message-0.1.0
  *  @package    org.lousson.message
  */
-class GenericMessageProvider extends AbstractMessageProvider
+class BuiltinMessageProvider extends AbstractMessageProvider
 {
     /**
      *  Create a provider instance
