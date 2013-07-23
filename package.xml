@@ -74,14 +74,14 @@ ${contents}
       <package>
         <name>Lousson_Exception</name>
         <channel>pear.lousson.org</channel>
-        <min>0.2.2</min>
-        <max>0.999.999</max>
+        <min>1.0.0</min>
+        <max>1.999.999</max>
       </package>
       <package>
         <name>Lousson_URI</name>
         <channel>pear.lousson.org</channel>
-        <min>0.4.2</min>
-        <max>0.999.999</max>
+        <min>1.0.0</min>
+        <max>1.999.999</max>
       </package>
       <package>
         <name>Psr_Log</name>
@@ -89,15 +89,12 @@ ${contents}
         <min>1.0.0</min>
         <max>1.999.999</max>
       </package>
-    </required>
-    <optional>
       <package>
         <name>Lousson_Sniffs</name>
         <channel>pear.lousson.org</channel>
         <min>0.4.0</min>
-        <max>0.999.999</max>
       </package>
-    </optional>
+    </required>
   </dependencies>
 
   <phprelease/>
