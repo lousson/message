@@ -74,7 +74,7 @@ class GenericMessageDispatcher extends AbstractMessageResolver
      *  with the given URI $scheme.
      *
      *  @param  string              $scheme     The URI scheme to resolve
-     *  @param  AnyMessageHandler   $resolver    The resolver to assign
+     *  @param  AnyMessageResolver  $resolver   The resolver to assign
      *
      *  @throws \Lousson\Message\AnyMessageException
      *          All exceptions raised implement this interface
