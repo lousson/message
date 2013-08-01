@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Builtin\BuiltinMessageResolver class definition
+ *  Lousson\Message\Generic\GenericMessageDispatcher class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,7 +40,7 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Builtin;
+namespace Lousson\Message\Generic;
 
 /** Interfaces: */
 use Lousson\Message\AnyMessageResolver;
@@ -56,16 +56,16 @@ use Lousson\URI\Builtin\BuiltinURIUtil;
 use Lousson\Message\Error\MessageArgumentError;
 
 /**
- *  A proxy message resolver implementation
+ *  A proxy message dispatcher implementation
  *
- *  The Lousson\Message\Builtin\BuiltinMessageResolver class is a proxy
+ *  The Lousson\Message\Generic\GenericMessageDispatcher class is a proxy
  *  implementation of the AnyMessageResolver interface, determining the
  *  actual resolver at runtime.
  *
- *  @since      lousson/Lousson_Message-1.1.0
+ *  @since      lousson/Lousson_Message-2.0.0
  *  @package    org.lousson.message
  */
-class BuiltinMessageResolver extends AbstractMessageResolver
+class GenericMessageDispatcher extends AbstractMessageResolver
 {
     /**
      *  Assign a resolver instance

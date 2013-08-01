@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Builtin\BuiltinMessageResolverTest class definition
+ *  Lousson\Message\Generic\GenericMessageDispatcherTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -40,38 +40,38 @@
  *  @author     Mathias J. Hennig <mhennig at quirkies.org>
  *  @filesource
  */
-namespace Lousson\Message\Builtin;
+namespace Lousson\Message\Generic;
 
 /** Dependencies: */
 use Lousson\Message\AbstractMessageResolverTest;
-use Lousson\Message\Builtin\BuiltinMessageResolver;
+use Lousson\Message\Generic\GenericMessageDispatcher;
 
 /**
- *  A test case for the builtin message resolver
+ *  A test case for the builtin message dispatcher
  *
- *  The Lousson\Message\Builtin\BuiltinMessageResolverTest class is a test
- *  case derived from the AbstractMessageResolverTest. It extends the list
- *  of tests by checks specific for the implementation of the builtin
- *  message resolver.
+ *  The Lousson\Message\Generic\GenericMessageDispatcherTest class is a
+ *  test case derived from the AbstractMessageResolverTest. It extends the
+ *  list of tests by checks specific for the implementation of the builtin
+ *  message dispatcher.
  *
- *  @since      lousson/Lousson_Message-1.1.0
+ *  @since      lousson/Lousson_Message-2.0.0
  *  @package    org.lousson.message
  */
-final class BuiltinMessageResolverTest
+final class GenericMessageDispatcherTest
     extends AbstractMessageResolverTest
 {
     /**
-     *  Obtain a message resolver instance
+     *  Obtain a message dispatcher instance
      *
-     *  The getMessageResolver() method is used to obtain the resolver
+     *  The getMessageResolver() method is used to obtain the dispatcher
      *  instance to use in the tests.
      *
-     *  @return \Lousson\Message\Builtin\BuiltinMessageResolver
-     *          A message resolver instance is returned on success
+     *  @return \Lousson\Message\Generic\GenericMessageDispatcher
+     *          A message dispatcher instance is returned on success
      */
     public function getMessageResolver()
     {
-        $outer = new BuiltinMessageResolver();
+        $outer = new GenericMessageDispatcher();
         $inner = $this->getMock(self::I_RESOLVER);
 
         $outer->setResolver("http", $inner);
