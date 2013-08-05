@@ -77,5 +77,27 @@ final class GenericMessageDispatcherTest
         $outer->setResolver("http", $inner);
         return $outer;
     }
+
+    /**
+     *  Test the getResolver() method
+     *
+     *  The testGetResolverError() method is a test case for getResolver()
+     *  that verifies that the method rejects requests without a valid URI
+     *  resp. URI scheme.
+     *
+     *  @expectedException  Lousson\Message\Error\MessageArgumentError
+     *  @test
+     *
+     *  @throws \Lousson\Message\AnyMessageException
+     *          Raised in case the test is successful
+     *
+     *  @throws \Exception
+     *          Raised in case of an implementation error
+     */
+    public function testGetResolverError()
+    {
+        $resolver = $this->getMessageResolver();
+        $resolver->getResolver("/uri/without/scheme");
+    }
 }
 
