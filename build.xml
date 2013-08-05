@@ -275,6 +275,7 @@
   <target name="build-vendor" depends="pear-package,setup-vendor">
     <echo>Populating vendor/ with dependencies</echo>
     <exec command="phix pear:register-channels" checkreturn="true" logoutput="true" />
+    <exec command="pear -c ${project.tmpdir}/pear-config config-set auto_discover 1" logoutput="true" checkreturn="true"/>
     <exec command="pear -c ${project.tmpdir}/pear-config install --alldeps ${project.tarfile}" logoutput="true" checkreturn="true"/>
     <echo/>
     <echo>Your vendor/ folder has been built.</echo>
@@ -407,6 +408,7 @@
     <if>
       <available file="${project.lastBuiltTarfile}"/>
       <then>
+        <exec command="pear -c ${project.tmpdir}/pear-config config-set auto_discover 1" checkreturn="true" logoutput="true" />
         <exec command="pear -c ${project.tmpdir}/pear-config install --alldeps -f ${project.lastBuiltTarfile}" logoutput="true" checkreturn="true"/>
         <phingcallifexists target="local.install-vendor"/>
       </then>
