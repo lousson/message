@@ -61,7 +61,7 @@ use Lousson\Message\Error\MessageArgumentError;
  *  of the AnyMessageHandler interface. It uses the Psr\Log\LoggerInterface
  *  to protocol any message consumed.
  *
- *  @since      lousson/Lousson_Message-2.0.0
+ *  @since      lousson/Lousson_Message-1.2.0
  *  @package    org.lousson.message
  */
 class BuiltinMessageConsumer

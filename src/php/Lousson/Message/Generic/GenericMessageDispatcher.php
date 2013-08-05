@@ -62,7 +62,7 @@ use Lousson\Message\Error\MessageArgumentError;
  *  implementation of the AnyMessageResolver interface, determining the
  *  actual resolver at runtime.
  *
- *  @since      lousson/Lousson_Message-2.0.0
+ *  @since      lousson/Lousson_Message-1.2.0
  *  @package    org.lousson.message
  */
 class GenericMessageDispatcher extends AbstractMessageResolver

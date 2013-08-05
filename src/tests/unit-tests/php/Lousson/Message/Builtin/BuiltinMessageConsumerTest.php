@@ -49,7 +49,7 @@ use Lousson\Message\Builtin\BuiltinMessageConsumer;
 /**
  *  A test case for the generic message consumer
  *
- *  @since      lousson/Lousson_Message-2.0.0
+ *  @since      lousson/Lousson_Message-1.2.0
  *  @package    org.lousson.message
  */
 final class BuiltinMessageConsumerTest extends AbstractMessageHandlerTest

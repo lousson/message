@@ -54,7 +54,7 @@ use Lousson\Message\Generic\GenericMessageDispatcher;
  *  list of tests by checks specific for the implementation of the builtin
  *  message dispatcher.
  *
- *  @since      lousson/Lousson_Message-2.0.0
+ *  @since      lousson/Lousson_Message-1.2.0
  *  @package    org.lousson.message
  */
 final class GenericMessageDispatcherTest
