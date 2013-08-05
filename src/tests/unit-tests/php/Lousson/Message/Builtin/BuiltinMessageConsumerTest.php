@@ -32,7 +32,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 /**
- *  Lousson\Message\Builtin\BuiltinMessageResolverTest class definition
+ *  Lousson\Message\Builtin\BuiltinMessageConsumerTest class definition
  *
  *  @package    org.lousson.message
  *  @copyright  (c) 2013, The Lousson Project
@@ -43,39 +43,31 @@
 namespace Lousson\Message\Builtin;
 
 /** Dependencies: */
-use Lousson\Message\AbstractMessageResolverTest;
-use Lousson\Message\Builtin\BuiltinMessageResolver;
+use Lousson\Message\AbstractMessageHandlerTest;
+use Lousson\Message\Builtin\BuiltinMessageConsumer;
 
 /**
- *  A test case for the builtin message resolver
+ *  A test case for the generic message consumer
  *
- *  The Lousson\Message\Builtin\BuiltinMessageResolverTest class is a test
- *  case derived from the AbstractMessageResolverTest. It extends the list
- *  of tests by checks specific for the implementation of the builtin
- *  message resolver.
- *
- *  @since      lousson/Lousson_Message-1.1.0
+ *  @since      lousson/Lousson_Message-1.2.0
  *  @package    org.lousson.message
  */
-final class BuiltinMessageResolverTest
-    extends AbstractMessageResolverTest
+final class BuiltinMessageConsumerTest extends AbstractMessageHandlerTest
 {
     /**
-     *  Obtain a message resolver instance
+     *  Obtain a message consumer instance
      *
-     *  The getMessageResolver() method is used to obtain the resolver
-     *  instance to use in the tests.
+     *  The getMessageHandler() method returns an instance of the message
+     *  consumer class that is to be tested.
      *
-     *  @return \Lousson\Message\Builtin\BuiltinMessageResolver
-     *          A message resolver instance is returned on success
+     *  @return \Lousson\Message\Builtin\BuiltinMessageConsumer
+     *          A message consumer instance is returned on success
      */
-    public function getMessageResolver()
+    public function getMessageHandler()
     {
-        $outer = new BuiltinMessageResolver();
-        $inner = $this->getMock(self::I_RESOLVER);
-
-        $outer->setResolver("http", $inner);
-        return $outer;
+        $logger = $this->getMock("Psr\\Log\\LoggerInterface");
+        $handler = new BuiltinMessageConsumer($logger);
+        return $handler;
     }
 }
 
